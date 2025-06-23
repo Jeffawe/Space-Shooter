@@ -4,6 +4,9 @@ Main Game class for Retro Space Shooter
 import pygame
 from player import Player
 from projectile import Projectile
+from enemy import Enemy, Asteroid, Debris
+from enemy_projectile import EnemyProjectile, Bomb
+from enemy_spawner import EnemySpawner
 from space_background import SpaceBackground
 from constants import *
 
@@ -21,10 +24,18 @@ class Game:
         # Create sprite groups
         self.all_sprites = pygame.sprite.Group()
         self.projectiles = pygame.sprite.Group()
+        self.enemy_projectiles = pygame.sprite.Group()
+        self.bombs = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+        self.asteroids = pygame.sprite.Group()
+        self.debris = pygame.sprite.Group()
         
         # Create player
         self.player = Player()
         self.all_sprites.add(self.player)
+        
+        # Create enemy spawner
+        self.enemy_spawner = EnemySpawner()
         
     def handle_events(self):
         """Handle game events"""
@@ -53,13 +64,29 @@ class Game:
     
     def update(self):
         """Update game state"""
+        # Update all sprites
         self.all_sprites.update()
+        
+        # Update enemies with AI (pass player position)
+        for enemy in self.enemies:
+            actions = enemy.update(self.player.rect)
+            if actions:
+                for action in actions:
+                    if isinstance(action, EnemyProjectile):
+                        self.enemy_projectiles.add(action)
+                        self.all_sprites.add(action)
+                    elif isinstance(action, Bomb):
+                        self.bombs.add(action)
+                        self.all_sprites.add(action)
         
         # Get current key states
         keys = pygame.key.get_pressed()
         
         # Update background based on player position and key presses
         self.background.update(self.player.rect, keys)
+        
+        # Update enemy spawner
+        self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
     
     def draw(self):
         """Draw everything to the screen"""
@@ -96,10 +123,23 @@ class Game:
         proj_text = pygame.font.Font(None, 20).render(f"Projectiles: {projectile_count}", True, WHITE)
         self.screen.blit(proj_text, (10, 100))
         
+        # Show enemy counts and AI status
+        enemy_count = len(self.enemies)
+        asteroid_count = len(self.asteroids)
+        debris_count = len(self.debris)
+        enemy_projectile_count = len(self.enemy_projectiles)
+        bomb_count = len(self.bombs)
+        
+        enemy_text = pygame.font.Font(None, 20).render(f"Enemies: {enemy_count} | Asteroids: {asteroid_count} | Debris: {debris_count}", True, WHITE)
+        self.screen.blit(enemy_text, (10, 120))
+        
+        ai_text = pygame.font.Font(None, 20).render(f"Enemy Shots: {enemy_projectile_count} | Bombs: {bomb_count}", True, YELLOW)
+        self.screen.blit(ai_text, (10, 140))
+        
         # Show shooting cooldown
         if self.player.shooting_cooldown > 0:
             cooldown_text = pygame.font.Font(None, 20).render(f"Cooldown: {self.player.shooting_cooldown}", True, RED)
-            self.screen.blit(cooldown_text, (10, 120))
+            self.screen.blit(cooldown_text, (10, 160))
         
         # Draw scroll zone indicators (more subtle)
         pygame.draw.line(self.screen, (100, 100, 0), (0, self.background.upper_scroll_zone), (SCREEN_WIDTH, self.background.upper_scroll_zone), 1)

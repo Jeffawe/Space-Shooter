@@ -27,6 +27,11 @@ PROJECTILE_PRIMARY_SPEED = 8    # Speed of primary projectile (Q key)
 PROJECTILE_SECONDARY_SPEED = 6  # Speed of secondary projectile (E key)
 SHOOTING_COOLDOWN = 10          # Frames between shots (prevents spam)
 
+# Enemy settings
+ENEMY_SPAWN_RATE = 120          # Base frames between enemy spawns
+ASTEROID_SPAWN_RATE = 180       # Base frames between asteroid spawns
+DEBRIS_SPAWN_RATE = 240         # Base frames between debris spawns
+
 # Asset paths
 ASSETS_DIR = "../assets"
 IMAGES_DIR = f"{ASSETS_DIR}/images"
