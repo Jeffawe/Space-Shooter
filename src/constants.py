@@ -19,6 +19,9 @@ YELLOW = (255, 255, 0)
 PLAYER_SPEED = 5
 PLAYER_SIZE = 32  # Assuming 32x32 sprites
 
+# Background settings
+BACKGROUND_SCROLL_SPEED = 2  # Pixels per frame for background scrolling
+
 # Asset paths
 ASSETS_DIR = "../assets"
 IMAGES_DIR = f"{ASSETS_DIR}/images"
