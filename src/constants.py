@@ -32,6 +32,13 @@ ENEMY_SPAWN_RATE = 120          # Base frames between enemy spawns
 ASTEROID_SPAWN_RATE = 180       # Base frames between asteroid spawns
 DEBRIS_SPAWN_RATE = 240         # Base frames between debris spawns
 
+# Collision settings
+COLLISION_KNOCKBACK_ASTEROID = 2.0    # Multiplier for asteroid collision knockback
+COLLISION_KNOCKBACK_DEBRIS = 1.5      # Multiplier for debris collision knockback
+COLLISION_SEPARATION_FORCE = 5        # Pixels to separate on enemy collision
+MAX_KNOCKBACK_FORCE = 10              # Maximum knockback force
+MAX_DEBRIS_KNOCKBACK = 7              # Maximum knockback for debris
+
 # Asset paths
 ASSETS_DIR = "../assets"
 IMAGES_DIR = f"{ASSETS_DIR}/images"

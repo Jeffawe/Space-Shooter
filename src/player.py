@@ -72,6 +72,9 @@ class Player(pygame.sprite.Sprite):
         
     def update(self):
         """Update player state"""
+        # Store previous position for speed calculation
+        prev_x, prev_y = self.rect.x, self.rect.y
+        
         # Get pressed keys
         keys = pygame.key.get_pressed()
         
@@ -97,6 +100,11 @@ class Player(pygame.sprite.Sprite):
             
         # Keep player on screen
         self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        
+        # Calculate movement speed for collision physics
+        dx = self.rect.x - prev_x
+        dy = self.rect.y - prev_y
+        self.last_speed = (dx*dx + dy*dy)**0.5  # Store speed for collision system
         
         # Update shooting cooldown
         if self.shooting_cooldown > 0:

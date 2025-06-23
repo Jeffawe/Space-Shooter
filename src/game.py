@@ -7,6 +7,7 @@ from projectile import Projectile
 from enemy import Enemy, Asteroid, Debris
 from enemy_projectile import EnemyProjectile, Bomb
 from enemy_spawner import EnemySpawner
+from collision_system import CollisionSystem
 from space_background import SpaceBackground
 from constants import *
 
@@ -36,6 +37,18 @@ class Game:
         
         # Create enemy spawner
         self.enemy_spawner = EnemySpawner()
+        
+        # Create collision system
+        self.collision_system = CollisionSystem()
+        
+        # Collision statistics
+        self.collision_stats = {
+            'player_collisions': 0,
+            'projectile_hits': 0,
+            'enemies_destroyed': 0,
+            'asteroids_destroyed': 0,
+            'debris_destroyed': 0
+        }
         
     def handle_events(self):
         """Handle game events"""
@@ -87,6 +100,16 @@ class Game:
         
         # Update enemy spawner
         self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
+        
+        # Process all collisions
+        collision_results = self.collision_system.process_all_collisions(
+            self.player, self.enemies, self.asteroids, self.debris, 
+            self.projectiles, self.enemy_projectiles
+        )
+        
+        # Update collision statistics
+        for key, value in collision_results.items():
+            self.collision_stats[key] += value
     
     def draw(self):
         """Draw everything to the screen"""
@@ -136,10 +159,17 @@ class Game:
         ai_text = pygame.font.Font(None, 20).render(f"Enemy Shots: {enemy_projectile_count} | Bombs: {bomb_count}", True, YELLOW)
         self.screen.blit(ai_text, (10, 140))
         
+        # Show collision statistics
+        collision_text = pygame.font.Font(None, 20).render(
+            f"Collisions: {self.collision_stats['player_collisions']} | Hits: {self.collision_stats['projectile_hits']} | Destroyed: {self.collision_stats['enemies_destroyed']}",
+            True, GREEN
+        )
+        self.screen.blit(collision_text, (10, 160))
+        
         # Show shooting cooldown
         if self.player.shooting_cooldown > 0:
             cooldown_text = pygame.font.Font(None, 20).render(f"Cooldown: {self.player.shooting_cooldown}", True, RED)
-            self.screen.blit(cooldown_text, (10, 160))
+            self.screen.blit(cooldown_text, (10, 180))
         
         # Draw scroll zone indicators (more subtle)
         pygame.draw.line(self.screen, (100, 100, 0), (0, self.background.upper_scroll_zone), (SCREEN_WIDTH, self.background.upper_scroll_zone), 1)
