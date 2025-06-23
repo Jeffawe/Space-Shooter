@@ -30,6 +30,9 @@ class Player(pygame.sprite.Sprite):
         # Animation
         self.current_sprite = 'center'
         
+        # Shooting
+        self.shooting_cooldown = 0
+        
     def load_sprites(self):
         """Load and cut the player sprite sheet"""
         # Load the sprite sheet
@@ -95,6 +98,10 @@ class Player(pygame.sprite.Sprite):
         # Keep player on screen
         self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         
+        # Update shooting cooldown
+        if self.shooting_cooldown > 0:
+            self.shooting_cooldown -= 1
+        
         # Update sprite based on movement
         self.update_sprite()
         
@@ -119,3 +126,27 @@ class Player(pygame.sprite.Sprite):
             
         # Update the image
         self.image = self.sprites[self.current_sprite]
+    
+    def can_shoot(self):
+        """Check if player can shoot (cooldown finished)"""
+        return self.shooting_cooldown <= 0
+    
+    def shoot(self, projectile_type="primary"):
+        """Create a projectile if cooldown allows"""
+        if self.can_shoot():
+            self.shooting_cooldown = SHOOTING_COOLDOWN
+            
+            # Determine firing direction based on player facing
+            if self.current_sprite == 'down':
+                # Player facing down - fire downward
+                direction = "down"
+                spawn_x = self.rect.centerx
+                spawn_y = self.rect.bottom  # Spawn from bottom of ship
+            else:
+                # Player facing up or sideways - fire upward
+                direction = "up"
+                spawn_x = self.rect.centerx
+                spawn_y = self.rect.top  # Spawn from top of ship
+            
+            return (spawn_x, spawn_y, projectile_type, direction)
+        return None

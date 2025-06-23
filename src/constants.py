@@ -22,6 +22,11 @@ PLAYER_SIZE = 32  # Assuming 32x32 sprites
 # Background settings
 BACKGROUND_SCROLL_SPEED = 2  # Pixels per frame for background scrolling
 
+# Projectile settings
+PROJECTILE_PRIMARY_SPEED = 8    # Speed of primary projectile (Q key)
+PROJECTILE_SECONDARY_SPEED = 6  # Speed of secondary projectile (E key)
+SHOOTING_COOLDOWN = 10          # Frames between shots (prevents spam)
+
 # Asset paths
 ASSETS_DIR = "../assets"
 IMAGES_DIR = f"{ASSETS_DIR}/images"

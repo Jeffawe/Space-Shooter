@@ -3,6 +3,7 @@ Main Game class for Retro Space Shooter
 """
 import pygame
 from player import Player
+from projectile import Projectile
 from space_background import SpaceBackground
 from constants import *
 
@@ -19,6 +20,7 @@ class Game:
         
         # Create sprite groups
         self.all_sprites = pygame.sprite.Group()
+        self.projectiles = pygame.sprite.Group()
         
         # Create player
         self.player = Player()
@@ -32,6 +34,22 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+                elif event.key == pygame.K_q:
+                    # Primary weapon
+                    shot_data = self.player.shoot("primary")
+                    if shot_data:
+                        x, y, proj_type, direction = shot_data
+                        projectile = Projectile(x, y, proj_type, direction)
+                        self.projectiles.add(projectile)
+                        self.all_sprites.add(projectile)
+                elif event.key == pygame.K_e:
+                    # Secondary weapon
+                    shot_data = self.player.shoot("secondary")
+                    if shot_data:
+                        x, y, proj_type, direction = shot_data
+                        projectile = Projectile(x, y, proj_type, direction)
+                        self.projectiles.add(projectile)
+                        self.all_sprites.add(projectile)
     
     def update(self):
         """Update game state"""
@@ -70,8 +88,18 @@ class Game:
             instruction_text = pygame.font.Font(None, 20).render("Hold S to scroll down!", True, YELLOW)
             self.screen.blit(instruction_text, (10, 80))
         else:
-            instruction_text = pygame.font.Font(None, 20).render("Move to zones to scroll", True, WHITE)
+            instruction_text = pygame.font.Font(None, 20).render("Q: Primary Fire | E: Secondary Fire", True, WHITE)
             self.screen.blit(instruction_text, (10, 80))
+        
+        # Show projectile count
+        projectile_count = len(self.projectiles)
+        proj_text = pygame.font.Font(None, 20).render(f"Projectiles: {projectile_count}", True, WHITE)
+        self.screen.blit(proj_text, (10, 100))
+        
+        # Show shooting cooldown
+        if self.player.shooting_cooldown > 0:
+            cooldown_text = pygame.font.Font(None, 20).render(f"Cooldown: {self.player.shooting_cooldown}", True, RED)
+            self.screen.blit(cooldown_text, (10, 120))
         
         # Draw scroll zone indicators (more subtle)
         pygame.draw.line(self.screen, (100, 100, 0), (0, self.background.upper_scroll_zone), (SCREEN_WIDTH, self.background.upper_scroll_zone), 1)
