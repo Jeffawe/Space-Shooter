@@ -24,6 +24,8 @@ class Player(pygame.sprite.Sprite):
         self.speed = PLAYER_SPEED
         self.moving_left = False
         self.moving_right = False
+        self.moving_up = False
+        self.moving_down = False
         
         # Animation
         self.current_sprite = 'center'
@@ -58,7 +60,12 @@ class Player(pygame.sprite.Sprite):
         # Frame 4: Right lean 2
         self.sprites['right2'] = sprite_sheet.subsurface((frame_width * 4, 0, frame_width, frame_height))
         
+        # Create up/down facing sprites by rotating the center sprite
+        self.sprites['up'] = self.sprites['center']  # Center sprite already faces up
+        self.sprites['down'] = pygame.transform.rotate(self.sprites['center'], 180)  # Rotate 180° for down facing
+        
         print(f"Player sprites loaded: {frame_width}x{frame_height} each")
+        print("Added up/down facing sprites")
         
     def update(self):
         """Update player state"""
@@ -68,6 +75,8 @@ class Player(pygame.sprite.Sprite):
         # Reset movement flags
         self.moving_left = False
         self.moving_right = False
+        self.moving_up = False
+        self.moving_down = False
         
         # Handle movement
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -78,8 +87,10 @@ class Player(pygame.sprite.Sprite):
             self.moving_right = True
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.rect.y -= self.speed
+            self.moving_up = True
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             self.rect.y += self.speed
+            self.moving_down = True
             
         # Keep player on screen
         self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -88,16 +99,23 @@ class Player(pygame.sprite.Sprite):
         self.update_sprite()
         
     def update_sprite(self):
-        """Update sprite based on movement direction"""
-        if self.moving_left and not self.moving_right:
-            # Moving left - use left lean sprite
+        """Update sprite based on movement direction - prioritize vertical movement"""
+        # Vertical movement takes priority over horizontal
+        if self.moving_up and not self.moving_down:
+            # Moving up - face up
+            self.current_sprite = 'up'
+        elif self.moving_down and not self.moving_up:
+            # Moving down - face down
+            self.current_sprite = 'down'
+        elif self.moving_left and not self.moving_right:
+            # Moving left only - use left lean sprite
             self.current_sprite = 'left1'
         elif self.moving_right and not self.moving_left:
-            # Moving right - use right lean sprite
+            # Moving right only - use right lean sprite
             self.current_sprite = 'right1'
         else:
-            # Not moving horizontally or moving both ways - use center
-            self.current_sprite = 'center'
+            # Not moving or moving in multiple directions - use center/up facing
+            self.current_sprite = 'up'
             
         # Update the image
         self.image = self.sprites[self.current_sprite]
