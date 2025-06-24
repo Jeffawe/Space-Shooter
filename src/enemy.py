@@ -1,9 +1,10 @@
 """
-Enemy system with AI for Retro Space Shooter
+Enemy system with AI and Health for Retro Space Shooter
 """
 import pygame
 import random
 import math
+from health_system import EnemyHealth
 from constants import *
 
 class Enemy(pygame.sprite.Sprite):
@@ -43,6 +44,10 @@ class Enemy(pygame.sprite.Sprite):
         
         # Positioning behavior
         self.preferred_distance = 100  # Preferred distance from player
+        
+        # Initialize health system after setting movement properties
+        # (health value is set in set_movement_properties)
+        self.health_system = None  # Will be created after movement properties are set
         
     def set_ai_properties(self):
         """Set AI detection ranges based on enemy type"""
@@ -144,6 +149,9 @@ class Enemy(pygame.sprite.Sprite):
         
         # Set AI properties after movement properties
         self.set_ai_properties()
+        
+        # Create health system with the health value set above
+        self.health_system = EnemyHealth(self, self.health)
         
     def distance_to_player(self, player_rect):
         """Calculate distance to player"""
@@ -308,6 +316,10 @@ class Enemy(pygame.sprite.Sprite):
         """Update enemy position and AI behavior"""
         self.move_timer += 1
         
+        # Update health system
+        if self.health_system:
+            self.health_system.update()
+        
         # Update AI if player is provided
         if player_rect:
             actions = self.update_ai(player_rect)
@@ -328,10 +340,19 @@ class Enemy(pygame.sprite.Sprite):
     
     def take_damage(self, damage=1):
         """Take damage and return True if destroyed"""
-        self.health -= damage
-        if self.health <= 0:
-            return True
-        return False
+        if self.health_system:
+            return self.health_system.take_damage(damage)
+        else:
+            # Fallback for enemies without health system
+            self.health -= damage
+            if self.health <= 0:
+                return True
+            return False
+    
+    def draw_health(self, screen):
+        """Draw enemy health bar if applicable"""
+        if self.health_system:
+            self.health_system.draw(screen)
 
 
 class Asteroid(pygame.sprite.Sprite):

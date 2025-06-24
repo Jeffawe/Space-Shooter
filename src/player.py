@@ -3,6 +3,7 @@ Player class for Retro Space Shooter
 """
 import pygame
 import os
+from health_system import PlayerHealth
 from constants import *
 
 class Player(pygame.sprite.Sprite):
@@ -32,6 +33,12 @@ class Player(pygame.sprite.Sprite):
         
         # Shooting
         self.shooting_cooldown = 0
+        
+        # Health system
+        self.health_system = PlayerHealth(max_health=100)
+        
+        # Track last speed for collision physics
+        self.last_speed = 0
         
     def load_sprites(self):
         """Load and cut the player sprite sheet"""
@@ -72,6 +79,12 @@ class Player(pygame.sprite.Sprite):
         
     def update(self):
         """Update player state"""
+        # Don't update if player is dead
+        if not self.is_alive():
+            # Update health system even when dead (for invulnerability timer)
+            self.health_system.update()
+            return
+        
         # Store previous position for speed calculation
         prev_x, prev_y = self.rect.x, self.rect.y
         
@@ -84,7 +97,7 @@ class Player(pygame.sprite.Sprite):
         self.moving_up = False
         self.moving_down = False
         
-        # Handle movement
+        # Handle movement (only if alive)
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.rect.x -= self.speed
             self.moving_left = True
@@ -109,6 +122,9 @@ class Player(pygame.sprite.Sprite):
         # Update shooting cooldown
         if self.shooting_cooldown > 0:
             self.shooting_cooldown -= 1
+        
+        # Update health system
+        self.health_system.update()
         
         # Update sprite based on movement
         self.update_sprite()
@@ -158,3 +174,32 @@ class Player(pygame.sprite.Sprite):
             
             return (spawn_x, spawn_y, projectile_type, direction)
         return None
+    
+    def take_damage(self, damage, damage_source="unknown"):
+        """Take damage and return True if player dies"""
+        return self.health_system.take_damage(damage, damage_source)
+    
+    def heal(self, amount):
+        """Heal the player"""
+        self.health_system.heal(amount)
+    
+    def is_alive(self):
+        """Check if player is alive"""
+        return self.health_system.is_alive
+    
+    def is_invulnerable(self):
+        """Check if player is invulnerable"""
+        return self.health_system.is_invulnerable()
+    
+    def get_health_percentage(self):
+        """Get health as percentage"""
+        return self.health_system.get_health_percentage()
+    
+    def draw_health(self, screen):
+        """Draw player health bar"""
+        self.health_system.draw(screen)
+    
+    def draw(self, screen):
+        """Draw player sprite only if alive"""
+        if self.is_alive():
+            screen.blit(self.image, self.rect)
