@@ -41,6 +41,11 @@ class Player(pygame.sprite.Sprite):
         # Track last speed for collision physics
         self.last_speed = 0
         
+        # Power-up effects
+        self.energy_effect = None  # Energy power-up effect
+        
+        print("🚀 Player initialized with power-up support")
+        
     def load_sprites(self):
         """Load and cut the player sprite sheet"""
         # Load the sprite sheet
@@ -127,6 +132,9 @@ class Player(pygame.sprite.Sprite):
         # Update health system
         self.health_system.update()
         
+        # Update power-up effects
+        self.update_powerup_effects()
+        
         # Update sprite based on movement
         self.update_sprite()
         
@@ -187,6 +195,45 @@ class Player(pygame.sprite.Sprite):
             
         # Update the image
         self.image = self.sprites[self.current_sprite]
+    
+    def collect_powerup(self, powerup_type):
+        """Handle power-up collection"""
+        if powerup_type == "health":
+            # HP Container - restore health
+            heal_amount = 30  # Heal 30 HP
+            old_health = self.health_system.current_health
+            self.health_system.heal(heal_amount)
+            new_health = self.health_system.current_health
+            actual_heal = new_health - old_health
+            
+            print(f"💖 HP Container collected! Healed {actual_heal} HP ({old_health} → {new_health})")
+            return f"Health +{actual_heal}"
+            
+        elif powerup_type == "energy":
+            # Energy Container - activate energy effect
+            from powerup import EnergyEffect
+            self.energy_effect = EnergyEffect(duration=300)  # 5 seconds
+            
+            print(f"⚡ Energy Container collected! Enhanced projectiles for {self.energy_effect.duration/60:.1f} seconds")
+            return "Energy Boost!"
+        
+        return "Power-up collected!"
+    
+    def update_powerup_effects(self):
+        """Update active power-up effects"""
+        if self.energy_effect:
+            if not self.energy_effect.update():
+                self.energy_effect = None  # Effect expired
+    
+    def has_energy_effect(self):
+        """Check if energy effect is active"""
+        return self.energy_effect is not None and self.energy_effect.active
+    
+    def get_energy_time_remaining(self):
+        """Get remaining energy effect time"""
+        if self.has_energy_effect():
+            return self.energy_effect.get_time_remaining()
+        return 0
     
     def can_shoot(self):
         """Check if player can shoot (cooldown finished)"""

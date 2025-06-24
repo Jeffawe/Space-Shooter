@@ -64,6 +64,39 @@ class CollisionSystem:
         
         return collision_events
     
+    def check_player_powerup_collisions(self, player, powerups):
+        """Check for collisions between player and power-ups"""
+        collision_events = []
+        
+        # Check player vs power-ups
+        for powerup in powerups:
+            if self.check_collision(player.rect, powerup.rect):
+                collision_events.append({
+                    'type': 'player_powerup',
+                    'player': player,
+                    'powerup': powerup,
+                    'collision_point': self.get_collision_point(player.rect, powerup.rect)
+                })
+        
+        return collision_events
+    
+    def check_projectile_bomb_collisions(self, projectiles, bombs):
+        """Check for collisions between projectiles and bombs"""
+        collision_events = []
+        
+        # Check projectiles vs bombs
+        for projectile in projectiles:
+            for bomb in bombs:
+                if self.check_collision(projectile.rect, bomb.rect):
+                    collision_events.append({
+                        'type': 'projectile_bomb',
+                        'projectile': projectile,
+                        'bomb': bomb,
+                        'collision_point': self.get_collision_point(projectile.rect, bomb.rect)
+                    })
+        
+        return collision_events
+    
     def check_projectile_collisions(self, projectiles, enemy_projectiles, enemies, asteroids, debris, player):
         """Check projectile collisions with various targets"""
         collision_events = []
@@ -174,6 +207,31 @@ class CollisionSystem:
             return [bomb_explosion, player_explosion]  # Return both explosions
         
         return [bomb_explosion]  # Return just bomb explosion
+    
+    def handle_player_powerup_collision(self, player, powerup):
+        """Handle collision between player and power-up"""
+        # Player collects the power-up
+        message = player.collect_powerup(powerup.powerup_type)
+        
+        # Remove the power-up
+        powerup.kill()
+        
+        print(f"🎁 Player collected {powerup.powerup_type} power-up: {message}")
+        return message
+    
+    def handle_projectile_bomb_collision(self, projectile, bomb):
+        """Handle collision between projectile and bomb - bomb explodes"""
+        from explosion import Explosion
+        
+        # Create bomb explosion at bomb location
+        bomb_explosion = Explosion(bomb.rect.centerx, bomb.rect.centery, "bomb")
+        
+        # Remove both projectile and bomb
+        projectile.kill()
+        bomb.kill()
+        
+        print(f"💥 Projectile hit bomb! Bomb destroyed by player shot at ({bomb.rect.centerx}, {bomb.rect.centery})")
+        return bomb_explosion
     
     def handle_player_enemy_collision(self, player, enemy, collision_point):
         """Handle collision between player and enemy ship"""
@@ -293,15 +351,28 @@ class CollisionSystem:
         
         return None
     
-    def handle_projectile_collision(self, collision_event):
-        """Handle projectile collision events"""
+    def handle_projectile_collision(self, collision_event, player=None):
+        """Handle projectile collision events with energy effect support"""
         collision_type = collision_event['type']
         
         if collision_type == 'projectile_enemy':
             projectile = collision_event['projectile']
             enemy = collision_event['enemy']
             
-            # Damage enemy
+            # Check for energy effect before destroying enemy
+            energy_destroyed = []
+            if player and player.has_energy_effect():
+                # Apply energy area effect
+                all_enemies = enemy.groups()[0] if enemy.groups() else []
+                explosions_list = []
+                energy_destroyed = player.energy_effect.apply_area_effect(enemy, all_enemies, explosions_list)
+                
+                # Return all explosions from energy effect
+                if energy_destroyed:
+                    projectile.kill()
+                    return explosions_list
+            
+            # Normal enemy damage
             if enemy.take_damage(1):
                 # Enemy destroyed - create explosion
                 explosion = Explosion(enemy.rect.centerx, enemy.rect.centery, "enemy")
@@ -364,7 +435,7 @@ class CollisionSystem:
         
         return None
     
-    def process_all_collisions(self, player, enemies, asteroids, debris, projectiles, enemy_projectiles, bombs=None):
+    def process_all_collisions(self, player, enemies, asteroids, debris, projectiles, enemy_projectiles, bombs=None, powerups=None):
         """Process all collision detection and responses"""
         collision_results = {
             'player_collisions': 0,
@@ -373,7 +444,10 @@ class CollisionSystem:
             'asteroids_destroyed': 0,
             'debris_destroyed': 0,
             'bomb_explosions': 0,
-            'explosions': []  # List of explosions to add to game
+            'powerups_collected': 0,
+            'bombs_shot': 0,  # New stat for bombs destroyed by projectiles
+            'explosions': [],  # List of explosions to add to game
+            'powerup_messages': []  # List of power-up collection messages
         }
         
         # Check player vs environment collisions
@@ -404,12 +478,41 @@ class CollisionSystem:
                 collision_results['bomb_explosions'] += 1
                 collision_results['player_collisions'] += 1
         
+        # Check player vs power-up collisions
+        if powerups:
+            powerup_collisions = self.check_player_powerup_collisions(player, powerups)
+            for collision in powerup_collisions:
+                message = self.handle_player_powerup_collision(
+                    collision['player'], 
+                    collision['powerup']
+                )
+                
+                collision_results['powerups_collected'] += 1
+                collision_results['powerup_messages'].append(message)
+        
+        # Check projectile vs bomb collisions
+        if bombs:
+            projectile_bomb_collisions = self.check_projectile_bomb_collisions(projectiles, bombs)
+            for collision in projectile_bomb_collisions:
+                explosion = self.handle_projectile_bomb_collision(
+                    collision['projectile'], 
+                    collision['bomb']
+                )
+                
+                collision_results['bombs_shot'] += 1
+                collision_results['explosions'].append(explosion)
+        
         # Check projectile collisions
         proj_collisions = self.check_projectile_collisions(projectiles, enemy_projectiles, enemies, asteroids, debris, player)
         for collision in proj_collisions:
-            explosion = self.handle_projectile_collision(collision)
+            explosion = self.handle_projectile_collision(collision, player)
             if explosion:
-                collision_results['explosions'].append(explosion)
+                if isinstance(explosion, list):
+                    # Multiple explosions from energy effect
+                    collision_results['explosions'].extend(explosion)
+                else:
+                    # Single explosion
+                    collision_results['explosions'].append(explosion)
             
             # Always count as a hit regardless of explosion
             collision_results['projectile_hits'] += 1

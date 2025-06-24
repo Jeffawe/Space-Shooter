@@ -12,6 +12,10 @@ from explosion import Explosion
 from space_background import SpaceBackground
 from constants import *
 
+CYAN = (0, 255, 255)        # R-G-B
+YELLOW = (255, 255, 0)
+ORANGE = (255, 165, 0)
+
 class Game:
     def __init__(self):
         """Initialize the game"""
@@ -32,6 +36,7 @@ class Game:
         self.asteroids = pygame.sprite.Group()
         self.debris = pygame.sprite.Group()
         self.explosions = pygame.sprite.Group()
+        self.powerups = pygame.sprite.Group()  # Power-ups group
         
         # Create player
         self.player = Player()
@@ -39,6 +44,10 @@ class Game:
         
         # Create enemy spawner
         self.enemy_spawner = EnemySpawner()
+        
+        # Create power-up spawner
+        from powerup import PowerUpSpawner
+        self.powerup_spawner = PowerUpSpawner()
         
         # Create collision system
         self.collision_system = CollisionSystem()
@@ -50,7 +59,9 @@ class Game:
             'enemies_destroyed': 0,
             'asteroids_destroyed': 0,
             'debris_destroyed': 0,
-            'bomb_explosions': 0
+            'bomb_explosions': 0,
+            'powerups_collected': 0,
+            'bombs_shot': 0
         }
         
         # Game state
@@ -114,11 +125,14 @@ class Game:
         # Update enemy spawner
         self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
         
+        # Update power-up spawner
+        self.powerup_spawner.update(self.powerups, self.all_sprites)
+        
         # Process all collisions (only if player is alive)
         if self.player.is_alive():
             collision_results = self.collision_system.process_all_collisions(
                 self.player, self.enemies, self.asteroids, self.debris, 
-                self.projectiles, self.enemy_projectiles, self.bombs
+                self.projectiles, self.enemy_projectiles, self.bombs, self.powerups
             )
             
             # Update collision statistics
@@ -133,7 +147,11 @@ class Game:
                         if explosion.explosion_type == "player":
                             self.game_over = True
                             self.player_death_timer = 180  # 3 seconds at 60 FPS
-                else:
+                elif key == 'powerup_messages':
+                    # Handle power-up collection messages (could display them)
+                    for message in value:
+                        print(f"🎁 {message}")
+                elif key in self.collision_stats:
                     # Update collision statistics
                     self.collision_stats[key] += value
         else:
@@ -201,18 +219,35 @@ class Game:
         )
         self.screen.blit(collision_text, (10, 160))
         
-        # Show bomb explosion statistics
-        if self.collision_stats['bomb_explosions'] > 0:
-            bomb_text = pygame.font.Font(None, 20).render(
-                f"💣 Bomb Explosions: {self.collision_stats['bomb_explosions']}", 
-                True, RED
+        # Show power-up statistics
+        if self.collision_stats['powerups_collected'] > 0:
+            powerup_text = pygame.font.Font(None, 20).render(
+                f"🎁 Power-ups: {self.collision_stats['powerups_collected']}", 
+                True, YELLOW
             )
-            self.screen.blit(bomb_text, (10, 180))
+            self.screen.blit(powerup_text, (10, 200))
+        
+        # Show energy effect status
+        if self.player.has_energy_effect():
+            energy_time = self.player.get_energy_time_remaining()
+            energy_text = pygame.font.Font(None, 24).render(
+                f"⚡ ENERGY BOOST: {energy_time:.1f}s", 
+                True, CYAN
+            )
+            self.screen.blit(energy_text, (10, 220))
+        
+        # Show bombs shot statistics
+        if self.collision_stats['bombs_shot'] > 0:
+            bombs_shot_text = pygame.font.Font(None, 20).render(
+                f"🎯 Bombs Shot: {self.collision_stats['bombs_shot']}", 
+                True, ORANGE
+            )
+            self.screen.blit(bombs_shot_text, (10, 240))
         
         # Show shooting cooldown
         if self.player.shooting_cooldown > 0:
             cooldown_text = pygame.font.Font(None, 20).render(f"Cooldown: {self.player.shooting_cooldown}", True, RED)
-            self.screen.blit(cooldown_text, (10, 200))
+            self.screen.blit(cooldown_text, (10, 260))
         
         # Draw player health bar
         self.player.draw_health(self.screen)
@@ -274,6 +309,7 @@ class Game:
         self.asteroids.empty()
         self.debris.empty()
         self.explosions.empty()
+        self.powerups.empty()
         
         # Reset player
         self.player = Player()
@@ -290,7 +326,9 @@ class Game:
             'enemies_destroyed': 0,
             'asteroids_destroyed': 0,
             'debris_destroyed': 0,
-            'bomb_explosions': 0
+            'bomb_explosions': 0,
+            'powerups_collected': 0,
+            'bombs_shot': 0
         }
         
         print("Game restarted!")
