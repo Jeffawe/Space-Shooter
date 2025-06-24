@@ -15,76 +15,86 @@ class WaveManager:
         self.wave_complete = False
         self.wave_failed = False
         self.story_complete = False
+        self.wave_intro_active = False  # New state for wave introduction
         
         # Wave timing
         self.wave_timer = 0
         self.wave_duration = 0  # Set per wave
         
-        # Enemy tracking
-        self.enemies_required = 0
-        self.enemies_destroyed = 0
+        # Enemy tracking - continuous spawning, no fixed count
         self.enemies_spawned = 0
+        self.enemies_destroyed = 0  # Track for statistics only
         self.max_enemies_on_screen = 8  # Limit concurrent enemies
         
-        # Wave composition definitions
+        # Wave composition definitions - continuous spawning with increasing frequency
         self.wave_compositions = {
             1: {
                 'enemies': ['fighter1'],
-                'count': 8,
+                'spawn_interval': 120,  # 2 seconds between spawns
+                'spawn_variance': 60,   # ±1 second variance
                 'duration': 60,  # 60 seconds
                 'description': "Training Wave - Basic Fighters"
             },
             2: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'count': 12,
+                'spawn_interval': 100,  # 1.67 seconds between spawns
+                'spawn_variance': 50,
                 'duration': 75,
                 'description': "Mixed Squadron"
             },
             3: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'count': 15,
+                'spawn_interval': 90,   # 1.5 seconds between spawns
+                'spawn_variance': 45,
                 'duration': 80,
                 'description': "Heavy Patrol"
             },
             4: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'count': 18,
+                'spawn_interval': 80,   # 1.33 seconds between spawns
+                'spawn_variance': 40,
                 'duration': 85,
                 'description': "Advanced Formation"
             },
             5: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'count': 20,
+                'spawn_interval': 70,   # 1.17 seconds between spawns
+                'spawn_variance': 35,
                 'duration': 90,
                 'description': "Elite Squadron"
             },
             6: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship'],
-                'count': 22,
+                'spawn_interval': 65,   # 1.08 seconds between spawns
+                'spawn_variance': 30,
                 'duration': 95,
                 'description': "New Threat Detected"
             },
             7: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'count': 25,
+                'spawn_interval': 60,   # 1 second between spawns
+                'spawn_variance': 30,
                 'duration': 100,
                 'description': "Pirate Raid"
             },
             8: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'count': 28,
+                'spawn_interval': 55,   # 0.92 seconds between spawns
+                'spawn_variance': 25,
                 'duration': 105,
                 'description': "Full Assault"
             },
             9: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'count': 30,
+                'spawn_interval': 50,   # 0.83 seconds between spawns
+                'spawn_variance': 25,
                 'duration': 110,
                 'description': "Final Defense"
             },
             10: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'count': 35,
+                'spawn_interval': 45,   # 0.75 seconds between spawns
+                'spawn_variance': 20,
                 'duration': 120,
                 'description': "Last Stand"
             }
@@ -97,8 +107,24 @@ class WaveManager:
         
         print("🌊 Wave Manager initialized - Story Mode ready!")
         
+    def start_wave_intro(self, wave_number):
+        """Start wave introduction (player can't move yet)"""
+        if wave_number > self.max_waves:
+            self.story_complete = True
+            print("🏆 All waves completed! Boss battle time!")
+            return False
+            
+        self.current_wave = wave_number
+        self.wave_intro_active = True
+        self.wave_active = False
+        self.wave_complete = False
+        self.wave_failed = False
+        
+        print(f"🌊 Wave {wave_number} introduction - Press SPACE to begin!")
+        return True
+    
     def start_wave(self, wave_number):
-        """Start a specific wave"""
+        """Start a specific wave (called after intro)"""
         if wave_number > self.max_waves:
             self.story_complete = True
             print("🏆 All waves completed! Boss battle time!")
@@ -108,7 +134,6 @@ class WaveManager:
         wave_data = self.wave_compositions[wave_number]
         
         # Set wave parameters
-        self.enemies_required = wave_data['count']
         self.wave_duration = wave_data['duration'] * 60  # Convert to frames (60 FPS)
         self.wave_timer = self.wave_duration
         
@@ -118,47 +143,48 @@ class WaveManager:
         self.spawn_timer = 0
         
         # Set wave state
+        self.wave_intro_active = False
         self.wave_active = True
         self.wave_complete = False
         self.wave_failed = False
         
-        # Adjust spawn rate based on wave difficulty
-        base_interval = 90
-        self.spawn_interval = max(30, base_interval - (wave_number * 5))  # Faster spawning in later waves
+        # Set spawn parameters from wave data
+        self.spawn_interval = wave_data['spawn_interval']
+        self.spawn_variance = wave_data['spawn_variance']
         
         print(f"🌊 Wave {wave_number} started: {wave_data['description']}")
-        print(f"   Objective: Destroy {self.enemies_required} enemies in {wave_data['duration']} seconds")
+        print(f"   Duration: {wave_data['duration']} seconds")
         print(f"   Enemy types: {', '.join(wave_data['enemies'])}")
+        print(f"   Spawn rate: Every {wave_data['spawn_interval']/60:.1f}s (±{wave_data['spawn_variance']/60:.1f}s)")
         
         return True
     
-    def update(self, enemies_group, all_sprites_group):
+    def update(self, enemies_group, all_sprites_group, player_alive=True):
         """Update wave state and enemy spawning"""
         if not self.wave_active:
             return
             
-        # Update wave timer
+        # Stop everything if player is dead - INCLUDING TIMER
+        if not player_alive:
+            print("🛑 Player dead - wave timer and spawning stopped")
+            return
+            
+        # Update wave timer only if player is alive
         self.wave_timer -= 1
         
-        # Check wave completion conditions
-        if self.enemies_destroyed >= self.enemies_required:
+        # Check wave completion - time-based only
+        if self.wave_timer <= 0:
             self.complete_wave()
             return
             
-        # Check wave failure conditions
-        if self.wave_timer <= 0:
-            self.fail_wave()
-            return
-            
-        # Handle enemy spawning
+        # Handle continuous enemy spawning only if player is alive
         self.update_enemy_spawning(enemies_group, all_sprites_group)
     
     def update_enemy_spawning(self, enemies_group, all_sprites_group):
-        """Handle spawning enemies for the current wave"""
-        # Don't spawn if we've spawned enough enemies or too many on screen
+        """Handle continuous enemy spawning for the current wave"""
+        # Don't spawn if too many enemies on screen
         current_enemies = len(enemies_group)
-        if (self.enemies_spawned >= self.enemies_required or 
-            current_enemies >= self.max_enemies_on_screen):
+        if current_enemies >= self.max_enemies_on_screen:
             return
             
         # Update spawn timer
@@ -171,31 +197,32 @@ class WaveManager:
             self.spawn_timer = 0
     
     def spawn_wave_enemy(self, enemies_group, all_sprites_group):
-        """Spawn an enemy based on current wave composition"""
+        """Spawn an enemy that will enter the player's view"""
         wave_data = self.wave_compositions[self.current_wave]
         enemy_types = wave_data['enemies']
         
         # Choose random enemy type from wave composition
         enemy_type = random.choice(enemy_types)
         
-        # Choose spawn location and direction
+        # Choose spawn location ensuring enemy enters screen
         spawn_side = random.choice(['top', 'bottom', 'left', 'right'])
         
+        # Spawn positions that guarantee screen entry
         if spawn_side == 'top':
-            x = random.randint(50, SCREEN_WIDTH - 50)
-            y = -50
+            x = random.randint(100, SCREEN_WIDTH - 100)  # Avoid extreme edges
+            y = -60  # Start above screen
             direction = 'down'
         elif spawn_side == 'bottom':
-            x = random.randint(50, SCREEN_WIDTH - 50)
-            y = SCREEN_HEIGHT + 50
+            x = random.randint(100, SCREEN_WIDTH - 100)
+            y = SCREEN_HEIGHT + 60  # Start below screen
             direction = 'up'
         elif spawn_side == 'left':
-            x = -50
-            y = random.randint(50, SCREEN_HEIGHT - 50)
+            x = -60  # Start left of screen
+            y = random.randint(100, SCREEN_HEIGHT - 100)  # Avoid extreme edges
             direction = 'right'
         else:  # right
-            x = SCREEN_WIDTH + 50
-            y = random.randint(50, SCREEN_HEIGHT - 50)
+            x = SCREEN_WIDTH + 60  # Start right of screen
+            y = random.randint(100, SCREEN_HEIGHT - 100)
             direction = 'left'
         
         # Create enemy
@@ -205,13 +232,12 @@ class WaveManager:
         all_sprites_group.add(enemy)
         
         self.enemies_spawned += 1
-        print(f"🚀 Spawned {enemy_type} for wave {self.current_wave} ({self.enemies_spawned}/{self.enemies_required})")
+        print(f"🚀 Spawned {enemy_type} for wave {self.current_wave} (#{self.enemies_spawned}) from {spawn_side}")
     
     def enemy_destroyed(self):
         """Call when an enemy is destroyed"""
         if self.wave_active:
             self.enemies_destroyed += 1
-            print(f"💥 Enemy destroyed! Progress: {self.enemies_destroyed}/{self.enemies_required}")
     
     def complete_wave(self):
         """Complete the current wave"""
@@ -219,23 +245,24 @@ class WaveManager:
         self.wave_complete = True
         
         print(f"✅ Wave {self.current_wave} completed!")
-        print(f"   Enemies destroyed: {self.enemies_destroyed}/{self.enemies_required}")
-        print(f"   Time remaining: {self.wave_timer/60:.1f} seconds")
+        print(f"   Duration: {self.wave_compositions[self.current_wave]['duration']} seconds")
+        print(f"   Enemies spawned: {self.enemies_spawned}")
+        print(f"   Enemies destroyed: {self.enemies_destroyed}")
     
     def fail_wave(self):
-        """Fail the current wave"""
+        """Fail the current wave (not used in continuous mode, but kept for compatibility)"""
         self.wave_active = False
         self.wave_failed = True
         
         print(f"❌ Wave {self.current_wave} failed!")
-        print(f"   Time expired! Only destroyed {self.enemies_destroyed}/{self.enemies_required} enemies")
+        print(f"   Enemies destroyed: {self.enemies_destroyed}")
     
     def next_wave(self):
         """Advance to the next wave"""
         if self.wave_complete:
             next_wave = self.current_wave + 1
             if next_wave <= self.max_waves:
-                return self.start_wave(next_wave)
+                return self.start_wave_intro(next_wave)
             else:
                 self.story_complete = True
                 print("🏆 All waves completed! Prepare for boss battle!")
@@ -244,7 +271,7 @@ class WaveManager:
     
     def restart_wave(self):
         """Restart the current wave"""
-        return self.start_wave(self.current_wave)
+        return self.start_wave_intro(self.current_wave)
     
     def get_wave_info(self):
         """Get current wave information"""
@@ -253,20 +280,24 @@ class WaveManager:
             return {
                 'wave_number': self.current_wave,
                 'description': wave_data['description'],
+                'enemies_spawned': self.enemies_spawned,
                 'enemies_destroyed': self.enemies_destroyed,
-                'enemies_required': self.enemies_required,
                 'time_remaining': max(0, self.wave_timer / 60.0),
+                'wave_duration': wave_data['duration'],
                 'wave_active': self.wave_active,
                 'wave_complete': self.wave_complete,
                 'wave_failed': self.wave_failed,
-                'story_complete': self.story_complete
+                'wave_intro_active': self.wave_intro_active,
+                'story_complete': self.story_complete,
+                'spawn_rate': f"Every {wave_data['spawn_interval']/60:.1f}s"
             }
         return None
     
     def get_progress_percentage(self):
-        """Get wave progress as percentage"""
-        if self.enemies_required > 0:
-            return min(100, (self.enemies_destroyed / self.enemies_required) * 100)
+        """Get wave progress as percentage (time-based)"""
+        if hasattr(self, 'wave_duration') and self.wave_duration > 0:
+            time_elapsed = self.wave_duration - self.wave_timer
+            return min(100, (time_elapsed / self.wave_duration) * 100)
         return 0
     
     def get_time_percentage(self):

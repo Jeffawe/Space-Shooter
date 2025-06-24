@@ -230,13 +230,13 @@ class PowerUpSpawner:
     """Manages power-up spawning from screen edges"""
     def __init__(self):
         self.spawn_timer = 0
-        self.spawn_interval = 600  # 10 seconds between spawns (more frequent)
-        self.spawn_chance = 0.4  # 40% chance to spawn when timer triggers
+        self.spawn_interval = 360  # 6 seconds between spawns (increased from 10 seconds)
+        self.spawn_chance = 0.6  # 60% chance to spawn when timer triggers (increased from 40%)
         
-        # Power-up type probabilities
+        # Power-up type probabilities (increased health chance)
         self.powerup_chances = {
-            'health': 60,  # 60% chance for health
-            'energy': 40   # 40% chance for energy
+            'health': 75,  # 75% chance for health (increased from 60%)
+            'energy': 25   # 25% chance for energy (decreased from 40%)
         }
         
         # Spawn side probabilities

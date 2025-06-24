@@ -81,8 +81,9 @@ class Game:
         
         # Start story mode
         if self.story_mode:
-            self.wave_intro_timer = 180  # 3 seconds intro
-            print("🎮 Story Mode initialized - Wave 1 starting soon!")
+            self.wave_intro_timer = 0  # No automatic timer, wait for SPACE
+            self.wave_manager.start_wave_intro(1)  # Start with wave 1 intro
+            print("🎮 Story Mode initialized - Press SPACE to begin Wave 1!")
         else:
             print("🎮 Endless Mode initialized")
         
@@ -101,7 +102,10 @@ class Game:
                     # Handle wave progression
                     wave_info = self.wave_manager.get_wave_info()
                     if wave_info:
-                        if wave_info['wave_complete']:
+                        if wave_info.get('wave_intro_active', False):
+                            # Start the wave from intro
+                            self.wave_manager.start_wave(wave_info['wave_number'])
+                        elif wave_info['wave_complete']:
                             # Advance to next wave
                             if not self.wave_manager.next_wave():
                                 # All waves completed - boss battle time!
@@ -136,29 +140,57 @@ class Game:
     
     def update(self):
         """Update game state"""
-        # Update all sprites
-        self.all_sprites.update()
+        # Update game objects only if player is alive or in endless mode
+        if self.player.is_alive() or not self.story_mode:
+            # Update all sprites
+            self.all_sprites.update()
+            
+            # Update enemies with AI (pass player position)
+            for enemy in self.enemies:
+                actions = enemy.update(self.player.rect)
+                if actions:
+                    for action in actions:
+                        if isinstance(action, EnemyProjectile):
+                            self.enemy_projectiles.add(action)
+                            self.all_sprites.add(action)
+                        elif isinstance(action, Bomb):
+                            self.bombs.add(action)
+                            self.all_sprites.add(action)
+            
+            # Update enemy spawner
+            if self.story_mode:
+                # Story mode: Wave-based spawning (only if player alive)
+                self.wave_manager.update(self.enemies, self.all_sprites, self.player.is_alive())
+            else:
+                # Endless mode: Traditional spawning
+                self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
+            
+            # Update power-up spawner (only if player alive)
+            if self.player.is_alive():
+                self.powerup_spawner.update(self.powerups, self.all_sprites)
+        else:
+            # Player is dead in story mode - only update explosions and UI
+            # Remove any remaining enemy projectiles and bombs when player dies
+            if self.player_death_timer == 180:  # First frame of death
+                print("🛑 Player died - stopping all enemy activity")
+                for projectile in self.enemy_projectiles:
+                    projectile.kill()
+                for bomb in self.bombs:
+                    bomb.kill()
         
-        # Update explosions
+        # Always update explosions
         self.explosions.update()
         
-        # Update enemies with AI (pass player position)
-        for enemy in self.enemies:
-            actions = enemy.update(self.player.rect)
-            if actions:
-                for action in actions:
-                    if isinstance(action, EnemyProjectile):
-                        self.enemy_projectiles.add(action)
-                        self.all_sprites.add(action)
-                    elif isinstance(action, Bomb):
-                        self.bombs.add(action)
-                        self.all_sprites.add(action)
-        
-        # Get current key states
+        # Get current key states and update background
         keys = pygame.key.get_pressed()
         
         # Update background based on player position and key presses
-        self.background.update(self.player.rect, keys)
+        if self.player.is_alive():
+            wave_info = self.wave_manager.get_wave_info() if self.story_mode else None
+            # Allow movement only if not in wave intro
+            if not self.story_mode or not (wave_info and wave_info.get('wave_intro_active', False)):
+                self.background.update(self.player.rect, keys)
+            # If in wave intro, don't update background (player can't move)
         
         # Update enemy spawner
         if self.story_mode:
@@ -206,13 +238,6 @@ class Game:
             # Player is dead, update death timer
             if self.player_death_timer > 0:
                 self.player_death_timer -= 1
-        
-        # Handle wave introduction timer
-        if self.story_mode and self.wave_intro_timer > 0:
-            self.wave_intro_timer -= 1
-            if self.wave_intro_timer == 0:
-                # Start the first wave
-                self.wave_manager.start_wave(1)
     
     def draw(self):
         """Draw everything to the screen"""
@@ -394,7 +419,7 @@ class Game:
         # Reset wave system for story mode
         if self.story_mode:
             self.wave_manager = WaveManager()
-            self.wave_intro_timer = 180  # 3 seconds intro
+            self.wave_manager.start_wave_intro(1)  # Start with wave 1 intro
         
         print("Game restarted!")
     
@@ -405,7 +430,7 @@ class Game:
             return
             
         # Draw wave introduction screen
-        if self.wave_intro_timer > 0:
+        if wave_info.get('wave_intro_active', False):
             self.wave_ui.draw_wave_intro(self.screen, wave_info)
             return
         

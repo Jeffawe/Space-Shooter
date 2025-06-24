@@ -200,7 +200,7 @@ class Player(pygame.sprite.Sprite):
         """Handle power-up collection"""
         if powerup_type == "health":
             # HP Container - restore health
-            heal_amount = 30  # Heal 30 HP
+            heal_amount = 50  # Increased from 30 to 50 HP
             old_health = self.health_system.current_health
             self.health_system.heal(heal_amount)
             new_health = self.health_system.current_health

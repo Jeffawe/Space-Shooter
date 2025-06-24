@@ -48,10 +48,10 @@ class WaveUI:
         desc_text = self.font_small.render(wave_info['description'], True, YELLOW)
         panel_surface.blit(desc_text, (10, 40))
         
-        # Enemy progress
-        progress_text = f"{wave_info['enemies_destroyed']}/{wave_info['enemies_required']} Enemies"
-        progress_surface = self.font_medium.render(progress_text, True, WHITE)
-        panel_surface.blit(progress_surface, (10, 65))
+        # Enemy statistics (spawned and destroyed)
+        stats_text = f"Spawned: {wave_info['enemies_spawned']} | Destroyed: {wave_info['enemies_destroyed']}"
+        stats_surface = self.font_small.render(stats_text, True, WHITE)
+        panel_surface.blit(stats_surface, (10, 65))
         
         # Timer
         time_remaining = wave_info['time_remaining']
@@ -64,7 +64,7 @@ class WaveUI:
         screen.blit(panel_surface, (self.wave_info_x, self.wave_info_y))
     
     def draw_progress_bars(self, screen, wave_manager):
-        """Draw progress bars for enemy destruction and time"""
+        """Draw progress bars for wave time and enemy activity"""
         wave_info = wave_manager.get_wave_info()
         if not wave_info or not wave_info['wave_active']:
             return
@@ -73,24 +73,8 @@ class WaveUI:
         bar_width = 220
         bar_height = 8
         
-        # Enemy progress bar
-        enemy_bar_y = self.wave_info_y + 135
-        enemy_progress = wave_manager.get_progress_percentage()
-        
-        # Background
-        pygame.draw.rect(screen, self.progress_bg_color, (bar_x, enemy_bar_y, bar_width, bar_height))
-        # Progress fill
-        fill_width = int((enemy_progress / 100) * bar_width)
-        pygame.draw.rect(screen, self.progress_fill_color, (bar_x, enemy_bar_y, fill_width, bar_height))
-        # Border
-        pygame.draw.rect(screen, WHITE, (bar_x, enemy_bar_y, bar_width, bar_height), 1)
-        
-        # Label
-        label = self.font_small.render("Enemy Progress", True, WHITE)
-        screen.blit(label, (bar_x, enemy_bar_y - 20))
-        
         # Time progress bar
-        time_bar_y = enemy_bar_y + 30
+        time_bar_y = self.wave_info_y + 135
         time_progress = wave_manager.get_time_percentage()
         time_color = self.get_timer_color(wave_info['time_remaining'])
         
@@ -103,8 +87,25 @@ class WaveUI:
         pygame.draw.rect(screen, WHITE, (bar_x, time_bar_y, bar_width, bar_height), 1)
         
         # Label
-        time_label = self.font_small.render("Time Remaining", True, WHITE)
+        time_label = self.font_small.render("Wave Progress", True, WHITE)
         screen.blit(time_label, (bar_x, time_bar_y - 20))
+        
+        # Enemy activity indicator
+        activity_bar_y = time_bar_y + 30
+        enemies_spawned = wave_info['enemies_spawned']
+        activity_level = min(100, (enemies_spawned / 20) * 100)  # Scale to 20 enemies max
+        
+        # Background
+        pygame.draw.rect(screen, self.progress_bg_color, (bar_x, activity_bar_y, bar_width, bar_height))
+        # Activity fill
+        activity_fill_width = int((activity_level / 100) * bar_width)
+        pygame.draw.rect(screen, CYAN, (bar_x, activity_bar_y, activity_fill_width, bar_height))
+        # Border
+        pygame.draw.rect(screen, WHITE, (bar_x, activity_bar_y, bar_width, bar_height), 1)
+        
+        # Label
+        activity_label = self.font_small.render("Enemy Activity", True, WHITE)
+        screen.blit(activity_label, (bar_x, activity_bar_y - 20))
     
     def draw_wave_status(self, screen, wave_manager):
         """Draw wave completion/failure status"""
@@ -140,7 +141,7 @@ class WaveUI:
         screen.blit(wave_text, wave_rect)
         
         # Stats
-        stats_text = f"Enemies Destroyed: {wave_info['enemies_destroyed']}/{wave_info['enemies_required']}"
+        stats_text = f"Enemies Spawned: {wave_info['enemies_spawned']} | Destroyed: {wave_info['enemies_destroyed']}"
         stats_surface = self.font_small.render(stats_text, True, YELLOW)
         stats_rect = stats_surface.get_rect(center=(center_x, center_y + 10))
         screen.blit(stats_surface, stats_rect)
@@ -168,7 +169,7 @@ class WaveUI:
         screen.blit(wave_text, wave_rect)
         
         # Stats
-        stats_text = f"Only destroyed {wave_info['enemies_destroyed']}/{wave_info['enemies_required']} enemies"
+        stats_text = f"Enemies Spawned: {wave_info['enemies_spawned']} | Destroyed: {wave_info['enemies_destroyed']}"
         stats_surface = self.font_small.render(stats_text, True, YELLOW)
         stats_rect = stats_surface.get_rect(center=(center_x, center_y + 10))
         screen.blit(stats_surface, stats_rect)
@@ -220,17 +221,17 @@ class WaveUI:
         desc_rect = desc_text.get_rect(center=(center_x, center_y - 40))
         screen.blit(desc_text, desc_rect)
         
-        # Objective
-        obj_text = f"Destroy {wave_info['enemies_required']} enemies"
+        # Objective - survive the wave duration
+        obj_text = f"Survive for {wave_info['wave_duration']} seconds"
         obj_surface = self.font_small.render(obj_text, True, WHITE)
         obj_rect = obj_surface.get_rect(center=(center_x, center_y))
         screen.blit(obj_surface, obj_rect)
         
-        # Time limit
-        time_text = f"Time limit: {wave_info['time_remaining']:.0f} seconds"
-        time_surface = self.font_small.render(time_text, True, WHITE)
-        time_rect = time_surface.get_rect(center=(center_x, center_y + 30))
-        screen.blit(time_surface, time_rect)
+        # Spawn rate info
+        spawn_text = f"Enemy spawn rate: {wave_info['spawn_rate']}"
+        spawn_surface = self.font_small.render(spawn_text, True, WHITE)
+        spawn_rect = spawn_surface.get_rect(center=(center_x, center_y + 30))
+        screen.blit(spawn_surface, spawn_rect)
         
         # Start instruction
         start_text = self.font_small.render("Press SPACE to begin wave", True, GREEN)
