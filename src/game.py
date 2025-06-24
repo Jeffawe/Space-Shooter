@@ -9,6 +9,8 @@ from enemy_projectile import EnemyProjectile, Bomb
 from enemy_spawner import EnemySpawner
 from collision_system import CollisionSystem
 from explosion import Explosion
+from wave_manager import WaveManager
+from wave_ui import WaveUI
 from space_background import SpaceBackground
 from constants import *
 
@@ -49,6 +51,14 @@ class Game:
         from powerup import PowerUpSpawner
         self.powerup_spawner = PowerUpSpawner()
         
+        # Create wave management system
+        self.wave_manager = WaveManager()
+        self.wave_ui = WaveUI()
+        
+        # Game mode
+        self.story_mode = True  # True for story mode, False for endless mode
+        self.wave_intro_timer = 0  # Timer for wave introduction screen
+        
         # Create collision system
         self.collision_system = CollisionSystem()
         
@@ -61,12 +71,20 @@ class Game:
             'debris_destroyed': 0,
             'bomb_explosions': 0,
             'powerups_collected': 0,
-            'bombs_shot': 0
+            'bombs_shot': 0,
+            'waves_completed': 0
         }
         
         # Game state
         self.game_over = False
         self.player_death_timer = 0  # Timer for player death animation
+        
+        # Start story mode
+        if self.story_mode:
+            self.wave_intro_timer = 180  # 3 seconds intro
+            print("🎮 Story Mode initialized - Wave 1 starting soon!")
+        else:
+            print("🎮 Endless Mode initialized")
         
     def handle_events(self):
         """Handle game events"""
@@ -79,6 +97,26 @@ class Game:
                 elif event.key == pygame.K_r and self.game_over and self.player_death_timer <= 0:
                     # Restart game
                     self.restart_game()
+                elif event.key == pygame.K_SPACE and self.story_mode:
+                    # Handle wave progression
+                    wave_info = self.wave_manager.get_wave_info()
+                    if wave_info:
+                        if wave_info['wave_complete']:
+                            # Advance to next wave
+                            if not self.wave_manager.next_wave():
+                                # All waves completed - boss battle time!
+                                print("🏆 Prepare for boss battle!")
+                        elif wave_info['wave_failed']:
+                            # Retry current wave
+                            self.wave_manager.restart_wave()
+                        elif wave_info['story_complete']:
+                            # Start boss battle (TODO: implement boss)
+                            print("🏆 Boss battle would start here!")
+                elif event.key == pygame.K_r and self.story_mode:
+                    # Retry wave in story mode
+                    wave_info = self.wave_manager.get_wave_info()
+                    if wave_info and wave_info['wave_failed']:
+                        self.wave_manager.restart_wave()
                 elif event.key == pygame.K_q and self.player.is_alive():
                     # Primary weapon (only if player is alive)
                     shot_data = self.player.shoot("primary")
@@ -123,7 +161,12 @@ class Game:
         self.background.update(self.player.rect, keys)
         
         # Update enemy spawner
-        self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
+        if self.story_mode:
+            # Story mode: Wave-based spawning
+            self.wave_manager.update(self.enemies, self.all_sprites)
+        else:
+            # Endless mode: Traditional spawning
+            self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
         
         # Update power-up spawner
         self.powerup_spawner.update(self.powerups, self.all_sprites)
@@ -154,10 +197,22 @@ class Game:
                 elif key in self.collision_stats:
                     # Update collision statistics
                     self.collision_stats[key] += value
+                    
+                    # Notify wave manager of enemy destruction
+                    if key == 'enemies_destroyed' and self.story_mode:
+                        for _ in range(value):
+                            self.wave_manager.enemy_destroyed()
         else:
             # Player is dead, update death timer
             if self.player_death_timer > 0:
                 self.player_death_timer -= 1
+        
+        # Handle wave introduction timer
+        if self.story_mode and self.wave_intro_timer > 0:
+            self.wave_intro_timer -= 1
+            if self.wave_intro_timer == 0:
+                # Start the first wave
+                self.wave_manager.start_wave(1)
     
     def draw(self):
         """Draw everything to the screen"""
@@ -260,6 +315,10 @@ class Game:
         if self.game_over:
             self.draw_game_over_screen()
         
+        # Draw wave UI in story mode
+        if self.story_mode:
+            self.draw_wave_ui()
+        
         # Draw scroll zone indicators (more subtle)
         pygame.draw.line(self.screen, (100, 100, 0), (0, self.background.upper_scroll_zone), (SCREEN_WIDTH, self.background.upper_scroll_zone), 1)
         pygame.draw.line(self.screen, (100, 100, 0), (0, self.background.lower_scroll_zone), (SCREEN_WIDTH, self.background.lower_scroll_zone), 1)
@@ -328,10 +387,35 @@ class Game:
             'debris_destroyed': 0,
             'bomb_explosions': 0,
             'powerups_collected': 0,
-            'bombs_shot': 0
+            'bombs_shot': 0,
+            'waves_completed': 0
         }
         
+        # Reset wave system for story mode
+        if self.story_mode:
+            self.wave_manager = WaveManager()
+            self.wave_intro_timer = 180  # 3 seconds intro
+        
         print("Game restarted!")
+    
+    def draw_wave_ui(self):
+        """Draw wave-related UI elements"""
+        wave_info = self.wave_manager.get_wave_info()
+        if not wave_info:
+            return
+            
+        # Draw wave introduction screen
+        if self.wave_intro_timer > 0:
+            self.wave_ui.draw_wave_intro(self.screen, wave_info)
+            return
+        
+        # Draw main wave UI during active gameplay
+        if wave_info['wave_active']:
+            self.wave_ui.draw_wave_info(self.screen, self.wave_manager)
+            self.wave_ui.draw_progress_bars(self.screen, self.wave_manager)
+        
+        # Draw wave status screens
+        self.wave_ui.draw_wave_status(self.screen, self.wave_manager)
     
     def run(self):
         """Main game loop"""

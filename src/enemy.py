@@ -90,13 +90,22 @@ class Enemy(pygame.sprite.Sprite):
         self.original_image = pygame.image.load(sprite_path).convert_alpha()
         
     def apply_direction_rotation(self):
-        """Rotate sprite to face UP or DOWN only"""
+        """Rotate sprite to face movement direction"""
         if self.direction == "down":
             # Default orientation (facing down)
             self.image = self.original_image
         elif self.direction == "up":
             # Rotate 180 degrees to face up
             self.image = pygame.transform.rotate(self.original_image, 180)
+        elif self.direction == "left":
+            # Rotate 90 degrees to face left
+            self.image = pygame.transform.rotate(self.original_image, 90)
+        elif self.direction == "right":
+            # Rotate -90 degrees to face right
+            self.image = pygame.transform.rotate(self.original_image, -90)
+        else:
+            # Fallback for any other direction
+            self.image = self.original_image
         
     def set_movement_properties(self):
         """Set movement properties based on enemy type"""
@@ -279,37 +288,57 @@ class Enemy(pygame.sprite.Sprite):
         return bomb
     
     def execute_movement_pattern(self):
-        """Execute the enemy's movement pattern - simplified for better gameplay"""
-        # Base vertical movement
+        """Execute the enemy's movement pattern - handles all directions"""
+        # Base movement based on direction
         if self.direction == "down":
-            base_y = self.base_speed
+            base_x, base_y = 0, self.base_speed
+        elif self.direction == "up":
+            base_x, base_y = 0, -self.base_speed
+        elif self.direction == "left":
+            base_x, base_y = -self.base_speed, 0
+        elif self.direction == "right":
+            base_x, base_y = self.base_speed, 0
         else:
-            base_y = -self.base_speed
+            base_x, base_y = 0, self.base_speed  # Default to down
         
-        # Apply movement pattern modifications (simplified)
+        # Apply movement pattern modifications
         if self.movement_pattern == "aggressive":
-            # Direct forward movement
+            # Direct movement
+            self.rect.x += base_x
             self.rect.y += base_y
             
         elif self.movement_pattern == "tactical":
             # Slight weaving movement
-            self.rect.x += math.sin(self.move_timer * 0.05) * 1  # Reduced weaving
-            self.rect.y += base_y
+            if self.direction in ["up", "down"]:
+                self.rect.x += math.sin(self.move_timer * 0.05) * 1  # Side weaving
+                self.rect.y += base_y
+            else:  # left/right
+                self.rect.x += base_x
+                self.rect.y += math.sin(self.move_timer * 0.05) * 1  # Up/down weaving
             
         elif self.movement_pattern == "defensive":
             # Slow, steady movement
-            self.rect.y += base_y * 0.8  # Even slower
+            self.rect.x += base_x * 0.8
+            self.rect.y += base_y * 0.8
             
         elif self.movement_pattern == "artillery":
             # Very slow movement, focus on positioning
-            self.rect.y += base_y * 0.6  # Much slower
+            self.rect.x += base_x * 0.6
+            self.rect.y += base_y * 0.6
             
         elif self.movement_pattern == "chaotic":
-            # Slight unpredictable movement
-            if self.move_timer % 90 < 45:  # Slower zigzag
-                self.rect.x += 1
+            # Unpredictable movement
+            if self.move_timer % 90 < 45:
+                if self.direction in ["up", "down"]:
+                    self.rect.x += 1
+                else:
+                    self.rect.y += 1
             else:
-                self.rect.x -= 1
+                if self.direction in ["up", "down"]:
+                    self.rect.x -= 1
+                else:
+                    self.rect.y -= 1
+            self.rect.x += base_x
             self.rect.y += base_y
     
     def update(self, player_rect=None):
