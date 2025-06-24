@@ -131,32 +131,57 @@ class Player(pygame.sprite.Sprite):
         self.update_sprite()
         
     def update_sprite(self):
-        """Update sprite based on movement direction - maintain last facing direction when not moving"""
-        # Check for active movement and update facing direction
-        if self.moving_up and not self.moving_down:
-            # Moving up - face up
+        """Update sprite based on movement direction - preserve vertical orientation during horizontal movement"""
+        
+        # Priority 1: Pure vertical movement (up/down only)
+        if self.moving_up and not self.moving_down and not self.moving_left and not self.moving_right:
+            # Moving up only - face up
             self.current_sprite = 'up'
             self.last_facing_direction = 'up'
-        elif self.moving_down and not self.moving_up:
-            # Moving down - face down
+            
+        elif self.moving_down and not self.moving_up and not self.moving_left and not self.moving_right:
+            # Moving down only - face down
             self.current_sprite = 'down'
             self.last_facing_direction = 'down'
+            
+        # Priority 2: Horizontal movement - preserve vertical orientation
         elif self.moving_left and not self.moving_right:
-            # Moving left only - use left lean sprite
-            self.current_sprite = 'left1'
-            self.last_facing_direction = 'left'
+            # Moving left - check current vertical orientation
+            if self.last_facing_direction == 'down' or (self.moving_down and not self.moving_up):
+                # Was facing down or currently moving down - use down-left
+                self.current_sprite = 'left1'  # Left lean while maintaining down orientation
+                self.last_facing_direction = 'down'  # Remember we were oriented down
+            else:
+                # Was facing up or default - use up-left  
+                self.current_sprite = 'left1'  # Left lean while maintaining up orientation
+                self.last_facing_direction = 'up'  # Remember we were oriented up
+                
         elif self.moving_right and not self.moving_left:
-            # Moving right only - use right lean sprite
-            self.current_sprite = 'right1'
-            self.last_facing_direction = 'right'
+            # Moving right - check current vertical orientation
+            if self.last_facing_direction == 'down' or (self.moving_down and not self.moving_up):
+                # Was facing down or currently moving down - use down-right
+                self.current_sprite = 'right1'  # Right lean while maintaining down orientation
+                self.last_facing_direction = 'down'  # Remember we were oriented down
+            else:
+                # Was facing up or default - use up-right
+                self.current_sprite = 'right1'  # Right lean while maintaining up orientation
+                self.last_facing_direction = 'up'  # Remember we were oriented up
+                
+        # Priority 3: Diagonal movement - vertical takes precedence
+        elif self.moving_up and not self.moving_down:
+            # Moving up (with possible horizontal) - face up
+            self.current_sprite = 'up'
+            self.last_facing_direction = 'up'
+            
+        elif self.moving_down and not self.moving_up:
+            # Moving down (with possible horizontal) - face down
+            self.current_sprite = 'down'
+            self.last_facing_direction = 'down'
+            
         else:
-            # Not moving or moving in multiple directions - maintain last facing direction
+            # Not moving or complex movement - maintain last facing direction
             if self.last_facing_direction == 'down':
                 self.current_sprite = 'down'
-            elif self.last_facing_direction == 'left':
-                self.current_sprite = 'left1'
-            elif self.last_facing_direction == 'right':
-                self.current_sprite = 'right1'
             else:  # 'up' or default
                 self.current_sprite = 'up'
             
