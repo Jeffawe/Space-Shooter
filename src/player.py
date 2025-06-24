@@ -30,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         
         # Animation
         self.current_sprite = 'center'
+        self.last_facing_direction = 'up'  # Remember last facing direction
         
         # Shooting
         self.shooting_cooldown = 0
@@ -130,23 +131,34 @@ class Player(pygame.sprite.Sprite):
         self.update_sprite()
         
     def update_sprite(self):
-        """Update sprite based on movement direction - prioritize vertical movement"""
-        # Vertical movement takes priority over horizontal
+        """Update sprite based on movement direction - maintain last facing direction when not moving"""
+        # Check for active movement and update facing direction
         if self.moving_up and not self.moving_down:
             # Moving up - face up
             self.current_sprite = 'up'
+            self.last_facing_direction = 'up'
         elif self.moving_down and not self.moving_up:
             # Moving down - face down
             self.current_sprite = 'down'
+            self.last_facing_direction = 'down'
         elif self.moving_left and not self.moving_right:
             # Moving left only - use left lean sprite
             self.current_sprite = 'left1'
+            self.last_facing_direction = 'left'
         elif self.moving_right and not self.moving_left:
             # Moving right only - use right lean sprite
             self.current_sprite = 'right1'
+            self.last_facing_direction = 'right'
         else:
-            # Not moving or moving in multiple directions - use center/up facing
-            self.current_sprite = 'up'
+            # Not moving or moving in multiple directions - maintain last facing direction
+            if self.last_facing_direction == 'down':
+                self.current_sprite = 'down'
+            elif self.last_facing_direction == 'left':
+                self.current_sprite = 'left1'
+            elif self.last_facing_direction == 'right':
+                self.current_sprite = 'right1'
+            else:  # 'up' or default
+                self.current_sprite = 'up'
             
         # Update the image
         self.image = self.sprites[self.current_sprite]
