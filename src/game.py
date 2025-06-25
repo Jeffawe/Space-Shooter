@@ -178,11 +178,16 @@ class Game:
         
         # Check if opening dialogue is complete and start first wave
         if (self.story_mode and self.game_started and 
-            not self.dialogue_system.is_active() and 
-            not self.wave_manager.get_wave_info()):
-            # Opening dialogue finished, start wave 1 intro
-            print("💬 Opening dialogue complete - Starting Wave 1 intro!")
-            self.wave_manager.start_wave_intro(1)
+            not self.dialogue_system.is_active()):
+            wave_info = self.wave_manager.get_wave_info()
+            # Start wave 1 intro if no wave is currently active or in intro
+            if (wave_info and not wave_info.get('wave_intro_active', False) and 
+                not wave_info.get('wave_active', False) and 
+                not wave_info.get('wave_complete', False) and
+                not wave_info.get('wave_failed', False)):
+                # Opening dialogue finished, start wave 1 intro
+                print("💬 Opening dialogue complete - Starting Wave 1 intro!")
+                self.wave_manager.start_wave_intro(1)
         
         # Update game objects only if player is alive or in endless mode
         if self.player.is_alive() or not self.story_mode:
