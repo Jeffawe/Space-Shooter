@@ -83,6 +83,7 @@ class PlayerHealth:
         self.is_alive = True
         self.invulnerable_time = 0  # Frames of invulnerability after taking damage
         self.max_invulnerable_time = 60  # 1 second at 60 FPS
+        self.immune_to_damage = False  # Complete immunity during wave transitions
         
         # Create health bar in bottom left
         self.health_bar = HealthBar(max_health, 10, SCREEN_HEIGHT - 30, 150, 15, True)
@@ -90,8 +91,10 @@ class PlayerHealth:
         print(f"Player health system initialized: {max_health} HP")
         
     def take_damage(self, damage, damage_source="unknown"):
-        """Take damage if not invulnerable"""
-        if not self.is_alive or self.invulnerable_time > 0:
+        """Take damage if not invulnerable or immune"""
+        if not self.is_alive or self.invulnerable_time > 0 or self.immune_to_damage:
+            if self.immune_to_damage:
+                print(f"🛡️ Player immune to {damage} damage from {damage_source} during wave transition")
             return False  # No damage taken
         
         self.current_health -= damage
@@ -131,6 +134,18 @@ class PlayerHealth:
         # Update invulnerability timer
         if self.invulnerable_time > 0:
             self.invulnerable_time -= 1
+    
+    def set_immunity(self, immune):
+        """Set damage immunity state (for wave transitions)"""
+        self.immune_to_damage = immune
+        if immune:
+            print("🛡️ Player damage immunity activated")
+        else:
+            print("⚔️ Player damage immunity deactivated")
+    
+    def is_immune(self):
+        """Check if player is immune to damage"""
+        return self.immune_to_damage
     
     def is_invulnerable(self):
         """Check if player is currently invulnerable"""

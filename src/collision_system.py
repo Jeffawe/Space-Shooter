@@ -435,6 +435,31 @@ class CollisionSystem:
         
         return None
     
+    def process_safe_collisions(self, player, powerups=None):
+        """Process only safe collisions (power-ups) - no damage to player"""
+        collision_results = {
+            'player_collisions': 0,
+            'projectile_hits': 0,
+            'enemies_destroyed': 0,
+            'explosions': [],
+            'powerup_messages': [],
+            'powerups_collected': 0,
+            'bombs_shot': 0
+        }
+        
+        # Only process power-up collections (safe)
+        if powerups:
+            for powerup in powerups:
+                if self.check_collision(player.rect, powerup.rect):
+                    # Player collected power-up
+                    result = player.collect_powerup(powerup.powerup_type)
+                    if result:
+                        collision_results['powerup_messages'].append(result)
+                        collision_results['powerups_collected'] += 1
+                        powerup.kill()  # Remove power-up
+        
+        return collision_results
+    
     def process_all_collisions(self, player, enemies, asteroids, debris, projectiles, enemy_projectiles, bombs=None, powerups=None):
         """Process all collision detection and responses"""
         collision_results = {

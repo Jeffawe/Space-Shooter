@@ -38,6 +38,9 @@ class Player(pygame.sprite.Sprite):
         # Health system
         self.health_system = PlayerHealth(max_health=100)
         
+        # Frame counter for debug messages
+        self.frame_count = 0
+        
         # Track last speed for collision physics
         self.last_speed = 0
         
@@ -83,8 +86,11 @@ class Player(pygame.sprite.Sprite):
         print(f"Player sprites loaded: {frame_width}x{frame_height} each")
         print("Added up/down facing sprites")
         
-    def update(self):
+    def update(self, movement_disabled=False):
         """Update player state"""
+        # Increment frame counter
+        self.frame_count += 1
+        
         # Don't update if player is dead
         if not self.is_alive():
             # Update health system even when dead (for invulnerability timer)
@@ -94,31 +100,36 @@ class Player(pygame.sprite.Sprite):
         # Store previous position for speed calculation
         prev_x, prev_y = self.rect.x, self.rect.y
         
-        # Get pressed keys
-        keys = pygame.key.get_pressed()
-        
         # Reset movement flags
         self.moving_left = False
         self.moving_right = False
         self.moving_up = False
         self.moving_down = False
         
-        # Handle movement (only if alive)
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.rect.x -= self.speed
-            self.moving_left = True
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.rect.x += self.speed
-            self.moving_right = True
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.rect.y -= self.speed
-            self.moving_up = True
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.rect.y += self.speed
-            self.moving_down = True
+        # Handle movement (only if alive and movement not disabled)
+        if not movement_disabled:
+            # Get pressed keys
+            keys = pygame.key.get_pressed()
             
-        # Keep player on screen
-        self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                self.rect.x -= self.speed
+                self.moving_left = True
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                self.rect.x += self.speed
+                self.moving_right = True
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
+                self.rect.y -= self.speed
+                self.moving_up = True
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                self.rect.y += self.speed
+                self.moving_down = True
+                
+            # Keep player on screen
+            self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        else:
+            # Movement is disabled - player stays in place
+            if self.frame_count % 60 == 0:  # Print once per second
+                print("🔒 Player input disabled - no movement allowed")
         
         # Calculate movement speed for collision physics
         dx = self.rect.x - prev_x

@@ -11,6 +11,7 @@ from collision_system import CollisionSystem
 from explosion import Explosion
 from wave_manager import WaveManager
 from wave_ui import WaveUI
+from dialogue_system import DialogueSystem
 from space_background import SpaceBackground
 from constants import *
 
@@ -55,6 +56,11 @@ class Game:
         self.wave_manager = WaveManager()
         self.wave_ui = WaveUI()
         
+        # Create dialogue system
+        self.dialogue_system = DialogueSystem()
+        self.game_started = False  # Track if opening dialogue has been shown
+        self.frame_count = 0  # Track frames for debug messages
+        
         # Game mode
         self.story_mode = True  # True for story mode, False for endless mode
         self.wave_intro_timer = 0  # Timer for wave introduction screen
@@ -81,11 +87,27 @@ class Game:
         
         # Start story mode
         if self.story_mode:
-            self.wave_intro_timer = 0  # No automatic timer, wait for SPACE
-            self.wave_manager.start_wave_intro(1)  # Start with wave 1 intro
-            print("🎮 Story Mode initialized - Press SPACE to begin Wave 1!")
+            # Start with opening dialogue instead of wave intro
+            self.start_opening_dialogue()
+            print("🎮 Story Mode initialized - Opening dialogue starting!")
         else:
             print("🎮 Endless Mode initialized")
+    
+    def check_post_wave_dialogue(self, wave_number):
+        """Check if dialogue should be shown after completing a wave"""
+        if wave_number == 1:
+            self.dialogue_system.start_dialogue('after_wave_1')
+        elif wave_number == 7:
+            self.dialogue_system.start_dialogue('after_wave_7')
+        elif wave_number == 10:
+            self.dialogue_system.start_dialogue('after_wave_10')
+    
+    def start_opening_dialogue(self):
+        """Start the opening dialogue sequence"""
+        if not self.game_started:
+            self.dialogue_system.start_dialogue('game_start')
+            self.game_started = True
+            print("💬 Starting opening dialogue sequence")
         
     def handle_events(self):
         """Handle game events"""
@@ -93,57 +115,100 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                elif event.key == pygame.K_r and self.game_over and self.player_death_timer <= 0:
-                    # Restart game
-                    self.restart_game()
-                elif event.key == pygame.K_SPACE and self.story_mode:
-                    # Handle wave progression
-                    wave_info = self.wave_manager.get_wave_info()
-                    if wave_info:
-                        if wave_info.get('wave_intro_active', False):
-                            # Start the wave from intro
-                            self.wave_manager.start_wave(wave_info['wave_number'])
-                        elif wave_info['wave_complete']:
-                            # Advance to next wave
-                            if not self.wave_manager.next_wave():
-                                # All waves completed - boss battle time!
-                                print("🏆 Prepare for boss battle!")
-                        elif wave_info['wave_failed']:
-                            # Retry current wave
+                # Handle dialogue input first
+                if self.dialogue_system.handle_input(event):
+                    continue  # Dialogue consumed the input
+                
+                # Game controls (only if dialogue is not active)
+                if not self.dialogue_system.is_active():
+                    if event.key == pygame.K_ESCAPE:
+                        self.running = False
+                    elif event.key == pygame.K_r and self.game_over and self.player_death_timer <= 0:
+                        # Restart game
+                        self.restart_game()
+                    elif event.key == pygame.K_SPACE and self.story_mode:
+                        # Handle wave progression
+                        wave_info = self.wave_manager.get_wave_info()
+                        if wave_info:
+                            if wave_info.get('wave_intro_active', False):
+                                # Start the wave from intro
+                                self.wave_manager.start_wave(wave_info['wave_number'])
+                            elif wave_info['wave_complete']:
+                                # Check for post-wave dialogue
+                                self.check_post_wave_dialogue(wave_info['wave_number'])
+                                # Advance to next wave
+                                if not self.wave_manager.next_wave():
+                                    # All waves completed - boss battle time!
+                                    self.dialogue_system.start_dialogue('after_wave_10')
+                            elif wave_info['wave_failed']:
+                                # Show failure dialogue
+                                self.dialogue_system.start_dialogue('wave_failed')
+                            elif wave_info['story_complete']:
+                                # Start boss battle (TODO: implement boss)
+                                print("🏆 Boss battle would start here!")
+                    elif event.key == pygame.K_r and self.story_mode:
+                        # Retry wave in story mode
+                        wave_info = self.wave_manager.get_wave_info()
+                        if wave_info and wave_info['wave_failed']:
                             self.wave_manager.restart_wave()
-                        elif wave_info['story_complete']:
-                            # Start boss battle (TODO: implement boss)
-                            print("🏆 Boss battle would start here!")
-                elif event.key == pygame.K_r and self.story_mode:
-                    # Retry wave in story mode
-                    wave_info = self.wave_manager.get_wave_info()
-                    if wave_info and wave_info['wave_failed']:
-                        self.wave_manager.restart_wave()
-                elif event.key == pygame.K_q and self.player.is_alive():
-                    # Primary weapon (only if player is alive)
-                    shot_data = self.player.shoot("primary")
-                    if shot_data:
-                        x, y, proj_type, direction = shot_data
-                        projectile = Projectile(x, y, proj_type, direction)
-                        self.projectiles.add(projectile)
-                        self.all_sprites.add(projectile)
-                elif event.key == pygame.K_e and self.player.is_alive():
-                    # Secondary weapon (only if player is alive)
-                    shot_data = self.player.shoot("secondary")
-                    if shot_data:
-                        x, y, proj_type, direction = shot_data
-                        projectile = Projectile(x, y, proj_type, direction)
-                        self.projectiles.add(projectile)
-                        self.all_sprites.add(projectile)
+                    elif event.key == pygame.K_q and self.player.is_alive():
+                        # Primary weapon (only if player is alive)
+                        shot_data = self.player.shoot("primary")
+                        if shot_data:
+                            x, y, proj_type, direction = shot_data
+                            projectile = Projectile(x, y, proj_type, direction)
+                            self.projectiles.add(projectile)
+                            self.all_sprites.add(projectile)
+                    elif event.key == pygame.K_e and self.player.is_alive():
+                        # Secondary weapon (only if player is alive)
+                        shot_data = self.player.shoot("secondary")
+                        if shot_data:
+                            x, y, proj_type, direction = shot_data
+                            projectile = Projectile(x, y, proj_type, direction)
+                            self.projectiles.add(projectile)
+                            self.all_sprites.add(projectile)
     
     def update(self):
         """Update game state"""
+        # Increment frame counter
+        self.frame_count += 1
+        
+        # Update dialogue system
+        self.dialogue_system.update()
+        
+        # Check if opening dialogue is complete and start first wave
+        if (self.story_mode and self.game_started and 
+            not self.dialogue_system.is_active() and 
+            not self.wave_manager.get_wave_info()):
+            # Opening dialogue finished, start wave 1 intro
+            print("💬 Opening dialogue complete - Starting Wave 1 intro!")
+            self.wave_manager.start_wave_intro(1)
+        
         # Update game objects only if player is alive or in endless mode
         if self.player.is_alive() or not self.story_mode:
-            # Update all sprites
-            self.all_sprites.update()
+            # Determine if player movement should be disabled
+            movement_disabled = False
+            if self.story_mode:
+                # Disable movement during dialogue
+                if self.dialogue_system.is_active():
+                    movement_disabled = True
+                
+                # Disable movement during wave transitions
+                wave_info = self.wave_manager.get_wave_info()
+                if wave_info:
+                    if (wave_info.get('wave_intro_active', False) or 
+                        wave_info.get('wave_complete', False) or 
+                        wave_info.get('wave_failed', False)):
+                        movement_disabled = True
+            
+            # Update all sprites with movement control
+            for sprite in self.all_sprites:
+                if sprite == self.player:
+                    # Update player with movement control
+                    sprite.update(movement_disabled)
+                else:
+                    # Update other sprites normally
+                    sprite.update()
             
             # Update enemies with AI (pass player position)
             for enemy in self.enemies:
@@ -187,10 +252,39 @@ class Game:
         # Update background based on player position and key presses
         if self.player.is_alive():
             wave_info = self.wave_manager.get_wave_info() if self.story_mode else None
-            # Allow movement only if not in wave intro
-            if not self.story_mode or not (wave_info and wave_info.get('wave_intro_active', False)):
+            
+            # Check if player movement should be disabled
+            movement_disabled = False
+            if self.story_mode:
+                # Disable movement during dialogue
+                if self.dialogue_system.is_active():
+                    movement_disabled = True
+                
+                # Disable movement during wave transitions
+                elif wave_info:
+                    if (wave_info.get('wave_intro_active', False) or 
+                        wave_info.get('wave_complete', False) or 
+                        wave_info.get('wave_failed', False)):
+                        movement_disabled = True
+            
+            # Update background with movement control
+            if not movement_disabled:
                 self.background.update(self.player.rect, keys)
-            # If in wave intro, don't update background (player can't move)
+            # If movement is disabled, don't update background (player can't move)
+        
+        # Update player immunity based on wave state
+        if self.story_mode and self.player.is_alive():
+            wave_info = self.wave_manager.get_wave_info()
+            if wave_info:
+                # Set immunity during wave transitions AND dialogue
+                should_be_immune = (self.dialogue_system.is_active() or
+                                  wave_info.get('wave_intro_active', False) or 
+                                  wave_info.get('wave_complete', False) or 
+                                  wave_info.get('wave_failed', False))
+                
+                # Only change immunity state if it's different
+                if should_be_immune != self.player.health_system.is_immune():
+                    self.player.health_system.set_immunity(should_be_immune)
         
         # Update enemy spawner
         if self.story_mode:
@@ -203,12 +297,34 @@ class Game:
         # Update power-up spawner
         self.powerup_spawner.update(self.powerups, self.all_sprites)
         
-        # Process all collisions (only if player is alive)
+        # Process all collisions (only if player is alive AND can take damage)
         if self.player.is_alive():
-            collision_results = self.collision_system.process_all_collisions(
-                self.player, self.enemies, self.asteroids, self.debris, 
-                self.projectiles, self.enemy_projectiles, self.bombs, self.powerups
-            )
+            wave_info = self.wave_manager.get_wave_info() if self.story_mode else None
+            
+            # Determine if player can take damage
+            can_take_damage = True
+            if self.story_mode and wave_info:
+                # Player is immune to damage during:
+                # - Wave introduction screens
+                # - Wave completion screens  
+                # - Wave failure screens
+                if (wave_info.get('wave_intro_active', False) or 
+                    wave_info.get('wave_complete', False) or 
+                    wave_info.get('wave_failed', False)):
+                    can_take_damage = False
+                    print("🛡️ Player immune to damage during wave transition")
+            
+            if can_take_damage:
+                # Process all collisions normally
+                collision_results = self.collision_system.process_all_collisions(
+                    self.player, self.enemies, self.asteroids, self.debris, 
+                    self.projectiles, self.enemy_projectiles, self.bombs, self.powerups
+                )
+            else:
+                # Process only safe collisions (power-ups, no damage)
+                collision_results = self.collision_system.process_safe_collisions(
+                    self.player, self.powerups
+                )
             
             # Update collision statistics
             for key, value in collision_results.items():
@@ -343,6 +459,9 @@ class Game:
         # Draw wave UI in story mode
         if self.story_mode:
             self.draw_wave_ui()
+        
+        # Draw dialogue system (always on top)
+        self.dialogue_system.draw(self.screen)
         
         # Draw scroll zone indicators (more subtle)
         pygame.draw.line(self.screen, (100, 100, 0), (0, self.background.upper_scroll_zone), (SCREEN_WIDTH, self.background.upper_scroll_zone), 1)
