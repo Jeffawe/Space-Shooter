@@ -24,7 +24,7 @@ class WaveManager:
         # Enemy tracking - continuous spawning, no fixed count
         self.enemies_spawned = 0
         self.enemies_destroyed = 0  # Track for statistics only
-        self.max_enemies_on_screen = 8  # Limit concurrent enemies
+        self.max_enemies_on_screen = 10  # Increased from 8 for more action
         
         # Wave composition definitions - continuous spawning with increasing frequency
         self.wave_compositions = {
@@ -37,29 +37,29 @@ class WaveManager:
             },
             2: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 100,  # 1.67 seconds between spawns
-                'spawn_variance': 50,
+                'spawn_interval': 90,   # 1.5 seconds between spawns (faster)
+                'spawn_variance': 45,
                 'duration': 75,
                 'description': "Mixed Squadron"
             },
             3: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 90,   # 1.5 seconds between spawns
-                'spawn_variance': 45,
+                'spawn_interval': 80,   # 1.33 seconds between spawns
+                'spawn_variance': 40,
                 'duration': 80,
                 'description': "Heavy Patrol"
             },
             4: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 80,   # 1.33 seconds between spawns
-                'spawn_variance': 40,
+                'spawn_interval': 70,   # 1.17 seconds between spawns
+                'spawn_variance': 35,
                 'duration': 85,
                 'description': "Advanced Formation"
             },
             5: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 70,   # 1.17 seconds between spawns
-                'spawn_variance': 35,
+                'spawn_interval': 60,   # 1.0 seconds between spawns
+                'spawn_variance': 30,
                 'duration': 90,
                 'description': "Elite Squadron"
             },
