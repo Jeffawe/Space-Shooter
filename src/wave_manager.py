@@ -24,77 +24,77 @@ class WaveManager:
         # Enemy tracking - continuous spawning, no fixed count
         self.enemies_spawned = 0
         self.enemies_destroyed = 0  # Track for statistics only
-        self.max_enemies_on_screen = 10  # Increased from 8 for more action
+        self.max_enemies_on_screen = 12  # Increased from 10 for more intense action
         
         # Wave composition definitions - continuous spawning with increasing frequency
         self.wave_compositions = {
             1: {
                 'enemies': ['fighter1'],
-                'spawn_interval': 120,  # 2 seconds between spawns
+                'spawn_interval': 120,  # 2.0 seconds between spawns
                 'spawn_variance': 60,   # ±1 second variance
                 'duration': 60,  # 60 seconds
                 'description': "Training Wave - Basic Fighters"
             },
             2: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 90,   # 1.5 seconds between spawns (faster)
+                'spawn_interval': 90,   # 1.5 seconds between spawns
                 'spawn_variance': 45,
                 'duration': 75,
                 'description': "Mixed Squadron"
             },
             3: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 80,   # 1.33 seconds between spawns
-                'spawn_variance': 40,
+                'spawn_interval': 75,   # 1.25 seconds between spawns
+                'spawn_variance': 35,
                 'duration': 80,
                 'description': "Heavy Patrol"
             },
             4: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 70,   # 1.17 seconds between spawns
-                'spawn_variance': 35,
+                'spawn_interval': 65,   # 1.08 seconds between spawns
+                'spawn_variance': 30,
                 'duration': 85,
                 'description': "Advanced Formation"
             },
             5: {
                 'enemies': ['fighter1', 'fighter2', 'gunship'],
-                'spawn_interval': 60,   # 1.0 seconds between spawns
-                'spawn_variance': 30,
+                'spawn_interval': 55,   # 0.92 seconds between spawns
+                'spawn_variance': 25,
                 'duration': 90,
                 'description': "Elite Squadron"
             },
             6: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship'],
-                'spawn_interval': 65,   # 1.08 seconds between spawns
-                'spawn_variance': 30,
+                'spawn_interval': 50,   # 0.83 seconds between spawns
+                'spawn_variance': 25,
                 'duration': 95,
                 'description': "New Threat Detected"
             },
             7: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'spawn_interval': 60,   # 1 second between spawns
-                'spawn_variance': 30,
+                'spawn_interval': 45,   # 0.75 seconds between spawns
+                'spawn_variance': 20,
                 'duration': 100,
                 'description': "Pirate Raid"
             },
             8: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'spawn_interval': 55,   # 0.92 seconds between spawns
-                'spawn_variance': 25,
+                'spawn_interval': 40,   # 0.67 seconds between spawns
+                'spawn_variance': 20,
                 'duration': 105,
                 'description': "Full Assault"
             },
             9: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'spawn_interval': 50,   # 0.83 seconds between spawns
-                'spawn_variance': 25,
+                'spawn_interval': 35,   # 0.58 seconds between spawns
+                'spawn_variance': 15,
                 'duration': 110,
                 'description': "Final Defense"
             },
             10: {
                 'enemies': ['fighter1', 'fighter2', 'gunship', 'crabship', 'pirate'],
-                'spawn_interval': 45,   # 0.75 seconds between spawns
-                'spawn_variance': 20,
+                'spawn_interval': 30,   # 0.5 seconds between spawns
+                'spawn_variance': 15,
                 'duration': 120,
                 'description': "Last Stand"
             }
@@ -182,9 +182,14 @@ class WaveManager:
     
     def update_enemy_spawning(self, enemies_group, all_sprites_group):
         """Handle continuous enemy spawning for the current wave"""
+        # Dynamic max enemies based on wave number for progressive difficulty
+        base_max = 12
+        wave_bonus = min(self.current_wave - 1, 8)  # Up to +8 enemies for later waves
+        current_max_enemies = base_max + wave_bonus
+        
         # Don't spawn if too many enemies on screen
         current_enemies = len(enemies_group)
-        if current_enemies >= self.max_enemies_on_screen:
+        if current_enemies >= current_max_enemies:
             return
             
         # Update spawn timer
@@ -207,22 +212,22 @@ class WaveManager:
         # Choose spawn location ensuring enemy enters screen
         spawn_side = random.choice(['top', 'bottom', 'left', 'right'])
         
-        # Spawn positions that guarantee screen entry
+        # Fixed spawn positions that guarantee screen entry
         if spawn_side == 'top':
-            x = random.randint(100, SCREEN_WIDTH - 100)  # Avoid extreme edges
-            y = -60  # Start above screen
+            x = random.randint(50, SCREEN_WIDTH - 50)  # Safe margin from edges
+            y = -50  # Start above screen, closer to edge
             direction = 'down'
         elif spawn_side == 'bottom':
-            x = random.randint(100, SCREEN_WIDTH - 100)
-            y = SCREEN_HEIGHT + 60  # Start below screen
+            x = random.randint(50, SCREEN_WIDTH - 50)
+            y = SCREEN_HEIGHT + 50  # Start below screen, closer to edge
             direction = 'up'
         elif spawn_side == 'left':
-            x = -60  # Start left of screen
-            y = random.randint(100, SCREEN_HEIGHT - 100)  # Avoid extreme edges
+            x = -50  # Start left of screen, closer to edge
+            y = random.randint(50, SCREEN_HEIGHT - 50)  # Safe margin from edges
             direction = 'right'
         else:  # right
-            x = SCREEN_WIDTH + 60  # Start right of screen
-            y = random.randint(100, SCREEN_HEIGHT - 100)
+            x = SCREEN_WIDTH + 50  # Start right of screen, closer to edge
+            y = random.randint(50, SCREEN_HEIGHT - 50)
             direction = 'left'
         
         # Create enemy
@@ -232,7 +237,7 @@ class WaveManager:
         all_sprites_group.add(enemy)
         
         self.enemies_spawned += 1
-        print(f"🚀 Spawned {enemy_type} for wave {self.current_wave} (#{self.enemies_spawned}) from {spawn_side}")
+        print(f"🚀 Spawned {enemy_type} for wave {self.current_wave} (#{self.enemies_spawned}) from {spawn_side} at ({x}, {y})")
     
     def enemy_destroyed(self):
         """Call when an enemy is destroyed"""

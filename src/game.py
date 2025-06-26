@@ -124,7 +124,7 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
                     elif event.key == pygame.K_r and self.game_over and self.player_death_timer <= 0:
-                        # Restart game
+                        # Restart game (only if no dialogue is active)
                         self.restart_game()
                     elif event.key == pygame.K_SPACE and self.story_mode:
                         # Handle wave progression
@@ -343,6 +343,11 @@ class Game:
                         if explosion.explosion_type == "player":
                             self.game_over = True
                             self.player_death_timer = 180  # 3 seconds at 60 FPS
+                            
+                            # Trigger failure dialogue in story mode
+                            if self.story_mode:
+                                self.dialogue_system.start_dialogue('wave_failed')
+                                print("💬 Player died - showing failure dialogue")
                 elif key == 'powerup_messages':
                     # Handle power-up collection messages (could display them)
                     for message in value:
@@ -475,7 +480,7 @@ class Game:
         pygame.display.flip()
     
     def draw_game_over_screen(self):
-        """Draw game over screen"""
+        """Draw game over screen with failure dialogue"""
         # Semi-transparent overlay
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         overlay.set_alpha(128)
@@ -488,23 +493,105 @@ class Game:
         font_small = pygame.font.Font(None, 24)
         
         game_over_text = font_large.render("GAME OVER", True, RED)
-        game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 50))
+        game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 100))
         self.screen.blit(game_over_text, game_over_rect)
         
         # Statistics
         stats_text = font_medium.render(f"Enemies Destroyed: {self.collision_stats['enemies_destroyed']}", True, WHITE)
-        stats_rect = stats_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+        stats_rect = stats_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 50))
         self.screen.blit(stats_text, stats_rect)
         
         hits_text = font_medium.render(f"Total Hits: {self.collision_stats['projectile_hits']}", True, WHITE)
-        hits_rect = hits_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 30))
+        hits_rect = hits_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 20))
         self.screen.blit(hits_text, hits_rect)
         
         # Restart instruction
         if self.player_death_timer <= 0:
             restart_text = font_small.render("Press R to Restart or ESC to Quit", True, YELLOW)
-            restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 80))
+            restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 20))
             self.screen.blit(restart_text, restart_rect)
+        
+        # Draw failure dialogue at bottom if active (in story mode)
+        if self.story_mode and self.dialogue_system.is_active():
+            self.draw_game_over_dialogue()
+    
+    def draw_game_over_dialogue(self):
+        """Draw the failure dialogue at the bottom of the game over screen"""
+        # Get current dialogue text
+        current_text = self.dialogue_system.get_current_text()
+        current_speaker = self.dialogue_system.get_current_speaker()
+        
+        if not current_text or not current_speaker:
+            return
+        
+        # Dialogue box dimensions (smaller than normal dialogue)
+        box_height = 100
+        box_margin = 20
+        text_margin = 12
+        
+        # Calculate dialogue box position at bottom
+        box_y = SCREEN_HEIGHT - box_height - box_margin
+        box_rect = pygame.Rect(box_margin, box_y, 
+                              SCREEN_WIDTH - (box_margin * 2), box_height)
+        
+        # Create dialogue box surface with transparency
+        dialogue_surface = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)
+        dialogue_surface.fill((0, 0, 0, 220))  # Slightly more opaque for game over
+        
+        # Draw border (red for failure dialogue)
+        pygame.draw.rect(dialogue_surface, (255, 100, 100), 
+                        (0, 0, box_rect.width, box_rect.height), 3)
+        
+        # Fonts for game over dialogue
+        font_medium = pygame.font.Font(None, 24)
+        font_small = pygame.font.Font(None, 20)
+        
+        # Speaker name (Duke in red for failure)
+        speaker_color = (255, 150, 150)  # Light red for Duke's failure message
+        speaker_surface = font_medium.render(f"{current_speaker.upper()}:", True, speaker_color)
+        dialogue_surface.blit(speaker_surface, (text_margin, text_margin))
+        
+        # Dialogue text (word wrap)
+        text_y = text_margin + 25
+        max_width = box_rect.width - (text_margin * 2)
+        
+        # Simple word wrapping for failure message
+        words = current_text.split(' ')
+        lines = []
+        current_line_text = ""
+        
+        for word in words:
+            test_line = current_line_text + word + " "
+            test_surface = font_small.render(test_line, True, WHITE)
+            
+            if test_surface.get_width() <= max_width:
+                current_line_text = test_line
+            else:
+                if current_line_text:
+                    lines.append(current_line_text.strip())
+                    current_line_text = word + " "
+                else:
+                    lines.append(word)
+                    current_line_text = ""
+        
+        if current_line_text:
+            lines.append(current_line_text.strip())
+        
+        # Draw text lines
+        for i, line in enumerate(lines):
+            if text_y + (i * 18) < box_rect.height - 25:  # Don't overflow box
+                text_surface = font_small.render(line, True, WHITE)
+                dialogue_surface.blit(text_surface, (text_margin, text_y + (i * 18)))
+        
+        # Draw continue instruction
+        instruction = "Press SPACE to continue"
+        instruction_surface = font_small.render(instruction, True, YELLOW)
+        instruction_rect = instruction_surface.get_rect()
+        instruction_rect.bottomright = (box_rect.width - text_margin, box_rect.height - text_margin)
+        dialogue_surface.blit(instruction_surface, instruction_rect)
+        
+        # Draw dialogue box to screen
+        self.screen.blit(dialogue_surface, box_rect)
     
     def restart_game(self):
         """Restart the game"""
