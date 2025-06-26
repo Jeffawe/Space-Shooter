@@ -291,17 +291,6 @@ class Game:
                 if should_be_immune != self.player.health_system.is_immune():
                     self.player.health_system.set_immunity(should_be_immune)
         
-        # Update enemy spawner
-        if self.story_mode:
-            # Story mode: Wave-based spawning
-            self.wave_manager.update(self.enemies, self.all_sprites)
-        else:
-            # Endless mode: Traditional spawning
-            self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
-        
-        # Update power-up spawner
-        self.powerup_spawner.update(self.powerups, self.all_sprites)
-        
         # Process all collisions (only if player is alive AND can take damage)
         if self.player.is_alive():
             wave_info = self.wave_manager.get_wave_info() if self.story_mode else None
@@ -364,6 +353,17 @@ class Game:
             # Player is dead, update death timer
             if self.player_death_timer > 0:
                 self.player_death_timer -= 1
+        
+        # Update enemy spawner AFTER collision processing to get accurate player status
+        if self.story_mode:
+            # Story mode: Wave-based spawning (pass player alive status)
+            self.wave_manager.update(self.enemies, self.all_sprites, self.player.is_alive())
+        else:
+            # Endless mode: Traditional spawning
+            self.enemy_spawner.update(self.enemies, self.asteroids, self.debris, self.all_sprites)
+        
+        # Update power-up spawner
+        self.powerup_spawner.update(self.powerups, self.all_sprites)
     
     def draw(self):
         """Draw everything to the screen"""
@@ -638,6 +638,10 @@ class Game:
         """Draw wave-related UI elements"""
         wave_info = self.wave_manager.get_wave_info()
         if not wave_info:
+            return
+        
+        # Don't draw wave UI if player is dead
+        if not self.player.is_alive():
             return
             
         # Draw wave introduction screen

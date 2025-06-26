@@ -164,10 +164,16 @@ class WaveManager:
         if not self.wave_active:
             return
             
-        # Stop everything if player is dead - INCLUDING TIMER
+        # Stop everything immediately if player is dead - INCLUDING TIMER
         if not player_alive:
-            print("🛑 Player dead - wave timer and spawning stopped")
+            # Don't print every frame, only on first detection
+            if hasattr(self, '_player_death_logged') and not self._player_death_logged:
+                print("🛑 Player dead - wave timer and spawning stopped")
+                self._player_death_logged = True
             return
+        else:
+            # Reset death logging flag when player is alive
+            self._player_death_logged = False
             
         # Update wave timer only if player is alive
         self.wave_timer -= 1
