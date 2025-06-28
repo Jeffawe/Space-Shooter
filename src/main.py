@@ -6,19 +6,41 @@ Main game entry point
 import pygame
 import sys
 from game import Game
+import asyncio
 
-def main():
+async def main():
     """Main game function"""
     # Initialize pygame
     pygame.init()
     
-    # Create and run the game
+    clock = pygame.time.Clock()
+    running = True
     game = Game()
-    game.run()
     
-    # Quit
+    while running:
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+        
+        # Update and draw game
+        game.run()
+        
+        # Update display
+        pygame.display.flip()
+
+        # Essential for pygbag - must be called every frame
+        await asyncio.sleep(0)
+        
+        # Control frame rate
+        clock.tick(60)
+    
+    # Cleanup
     pygame.quit()
     sys.exit()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
