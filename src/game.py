@@ -306,7 +306,7 @@ class Game:
                     wave_info.get('wave_complete', False) or 
                     wave_info.get('wave_failed', False)):
                     can_take_damage = False
-                    print("🛡️ Player immune to damage during wave transition")
+                    # print("🛡️ Player immune to damage during wave transition")
             
             if can_take_damage:
                 # Process all collisions normally

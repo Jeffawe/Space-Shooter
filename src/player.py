@@ -126,10 +126,6 @@ class Player(pygame.sprite.Sprite):
                 
             # Keep player on screen
             self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-        else:
-            # Movement is disabled - player stays in place
-            if self.frame_count % 60 == 0:  # Print once per second
-                print("🔒 Player input disabled - no movement allowed")
         
         # Calculate movement speed for collision physics
         dx = self.rect.x - prev_x

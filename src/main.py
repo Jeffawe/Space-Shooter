@@ -18,16 +18,16 @@ async def main():
     game = Game()
     
     while running:
-        # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-        
-        # Update and draw game
-        game.run()
+        # Handle events, update and draw game
+        game.handle_events()
+        game.update()
+        game.draw()
+
+        # game.run()
+
+        # Check if game wants to quit
+        if not game.running:
+            running = False
         
         # Update display
         pygame.display.flip()
