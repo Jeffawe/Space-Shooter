@@ -90,7 +90,7 @@ def demo_collision_system():
         
         # Capture key frames showing collision system
         if frame in [0, 100, 200]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/collision_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/collision_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             print(f"\nFrame {frame}:")

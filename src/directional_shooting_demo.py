@@ -33,7 +33,7 @@ def demo_directional_shooting():
     # Update and draw
     game.update()
     game.draw()
-    screenshot_path = "/home/jeffawe/amazon-build/assets/images/directional_shooting_up.png"
+    screenshot_path = "assets/images/directional_shooting_up.png"
     pygame.image.save(game.screen, screenshot_path)
     print(f"Screenshot saved: {screenshot_path}")
     
@@ -57,7 +57,7 @@ def demo_directional_shooting():
     # Update and draw
     game.update()
     game.draw()
-    screenshot_path = "/home/jeffawe/amazon-build/assets/images/directional_shooting_down.png"
+    screenshot_path = "assets/images/directional_shooting_down.png"
     pygame.image.save(game.screen, screenshot_path)
     print(f"Screenshot saved: {screenshot_path}")
     
@@ -66,7 +66,7 @@ def demo_directional_shooting():
     for frame in range(30):
         game.update()
         if frame == 15:  # Halfway through
-            screenshot_path = "/home/jeffawe/amazon-build/assets/images/directional_shooting_movement.png"
+            screenshot_path = "assets/images/directional_shooting_movement.png"
             pygame.image.save(game.screen, screenshot_path)
             proj_count = len(game.projectiles)
             print(f"Frame {frame}: {proj_count} projectiles moving - {screenshot_path}")

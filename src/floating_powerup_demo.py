@@ -85,7 +85,7 @@ def demo_floating_powerups():
         
         # Capture key frames showing floating movement
         if frame in [0, 200, 400, 600, 800, 1000]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/floating_powerup_frame_{frame}.png"
+            screenshot_path = f"assets/images/floating_powerup_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             player_health = game.player.health_system.current_health

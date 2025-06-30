@@ -95,7 +95,7 @@ def demo_bomb_shooting():
         
         # Capture key frames
         if frame in [0, 200, 400, 600, 800]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/bomb_shooting_frame_{frame}.png"
+            screenshot_path = f"assets/images/bomb_shooting_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             bombs_remaining = len(game.bombs)

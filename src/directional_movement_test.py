@@ -91,7 +91,7 @@ def test_directional_movement():
             
             # Take screenshot
             game.draw()
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/directional_test_frame_{frame}.png"
+            screenshot_path = f"assets/images/directional_test_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             print(f"  Screenshot: {screenshot_path}")
     

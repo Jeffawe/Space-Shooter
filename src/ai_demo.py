@@ -50,7 +50,7 @@ def demo_enemy_ai():
         
         # Capture key frames showing AI behavior
         if frame in [0, 100, 200]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/ai_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/ai_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             enemy_count = len(game.enemies)

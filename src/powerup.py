@@ -73,9 +73,9 @@ class PowerUp(pygame.sprite.Sprite):
         """Load the appropriate sprite for this power-up type"""
         try:
             if self.powerup_type == "health":
-                self.image = pygame.image.load("/home/jeffawe/amazon-build/assets/images/HPContainer.png").convert_alpha()
+                self.image = pygame.image.load("assets/images/HPContainer.png").convert_alpha()
             elif self.powerup_type == "energy":
-                self.image = pygame.image.load("/home/jeffawe/amazon-build/assets/images/EnergyContainer.png").convert_alpha()
+                self.image = pygame.image.load("assets/images/EnergyContainer.png").convert_alpha()
             else:
                 # Fallback - create a colored square
                 self.image = pygame.Surface((24, 24), pygame.SRCALPHA)

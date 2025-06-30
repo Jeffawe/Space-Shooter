@@ -113,7 +113,7 @@ def demo_powerup_system():
         
         # Capture key frames
         if frame in [0, 300, 600, 900]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/powerup_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/powerup_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             player_health = game.player.health_system.current_health

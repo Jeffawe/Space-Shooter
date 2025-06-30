@@ -70,7 +70,7 @@ def demo_movement_lockout():
         
         # Capture screenshots and analyze movement state
         if frame_count % screenshot_interval == 0:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/lockout_frame_{frame_count}.png"
+            screenshot_path = f"assets/images/lockout_frame_{frame_count}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             dialogue_active = game.dialogue_system.is_active()

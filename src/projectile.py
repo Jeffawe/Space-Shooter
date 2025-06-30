@@ -15,11 +15,11 @@ class Projectile(pygame.sprite.Sprite):
         # Load appropriate projectile image
         if projectile_type == "primary":
             # Q key - Blue laser (Projectile01)
-            self.original_image = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Projectile01.png").convert_alpha()
+            self.original_image = pygame.image.load("assets/images/Projectile01.png").convert_alpha()
             self.speed = PROJECTILE_PRIMARY_SPEED
         elif projectile_type == "secondary":
             # E key - Different projectile (Projectile03)
-            self.original_image = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Projectile03.png").convert_alpha()
+            self.original_image = pygame.image.load("assets/images/Projectile03.png").convert_alpha()
             self.speed = PROJECTILE_SECONDARY_SPEED
         
         # Rotate projectile based on direction

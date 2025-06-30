@@ -58,7 +58,7 @@ def demo_detection_ranges():
         
         # Capture frames showing detection behavior
         if frame in [0, 50, 100]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/detection_range_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/detection_range_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             enemy_count = len(game.enemies)

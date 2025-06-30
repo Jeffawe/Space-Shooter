@@ -129,7 +129,7 @@ def demo_explosion_system():
         
         # Capture key frames showing explosion system
         if frame in [0, 200, 400, 600, 800]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/explosion_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/explosion_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             player_health = game.player.health_system.current_health

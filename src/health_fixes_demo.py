@@ -116,7 +116,7 @@ def demo_health_fixes():
         
         # Capture screenshots at key moments
         if frame_count % screenshot_interval == 0:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/health_fixes_frame_{frame_count}.png"
+            screenshot_path = f"assets/images/health_fixes_frame_{frame_count}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             if wave_info:

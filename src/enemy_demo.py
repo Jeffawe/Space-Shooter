@@ -60,7 +60,7 @@ def demo_enemy_system():
         
         # Capture key frames
         if frame in [0, 60, 120]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/enemy_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/enemy_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             enemy_count = len(game.enemies)

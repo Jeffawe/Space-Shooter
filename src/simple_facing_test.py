@@ -22,7 +22,7 @@ def test_facing():
     # Test 1: Default state
     game.update()
     game.draw()
-    screenshot_path = "/home/jeffawe/amazon-build/assets/images/facing_test_default.png"
+    screenshot_path = "assets/images/facing_test_default.png"
     pygame.image.save(game.screen, screenshot_path)
     print(f"Default: Current sprite = {game.player.current_sprite}")
     
@@ -33,7 +33,7 @@ def test_facing():
     game.player.current_sprite = 'down'
     game.player.image = game.player.sprites['down']
     game.draw()
-    screenshot_path = "/home/jeffawe/amazon-build/assets/images/facing_test_down.png"
+    screenshot_path = "assets/images/facing_test_down.png"
     pygame.image.save(game.screen, screenshot_path)
     print("Manually set to down sprite - screenshot saved")
     

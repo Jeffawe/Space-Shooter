@@ -75,7 +75,7 @@ def demo_dialogue_system():
         
         # Capture screenshots at key moments
         if frame_count % screenshot_interval == 0:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/dialogue_frame_{frame_count}.png"
+            screenshot_path = f"assets/images/dialogue_frame_{frame_count}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             dialogue_active = game.dialogue_system.is_active()

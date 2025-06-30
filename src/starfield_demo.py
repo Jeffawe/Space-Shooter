@@ -33,7 +33,7 @@ def demo_starfield():
         game.draw()
         
         # Save screenshot
-        screenshot_path = f"/home/jeffawe/amazon-build/assets/images/starfield_demo_{i}.png"
+        screenshot_path = f"assets/images/starfield_demo_{i}.png"
         pygame.image.save(game.screen, screenshot_path)
         
         print(f"Screenshot {i+1}: {description}")

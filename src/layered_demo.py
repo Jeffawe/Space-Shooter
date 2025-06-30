@@ -27,7 +27,7 @@ def demo_layered_background():
         game.draw()
         
         # Save screenshot
-        screenshot_path = f"/home/jeffawe/amazon-build/assets/images/layered_demo_{i}.png"
+        screenshot_path = f"assets/images/layered_demo_{i}.png"
         pygame.image.save(game.screen, screenshot_path)
         
         scroll_percent = game.background.get_scroll_progress()

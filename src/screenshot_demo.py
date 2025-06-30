@@ -21,7 +21,7 @@ def create_screenshot():
     game.draw()
     
     # Save screenshot
-    screenshot_path = "/home/jeffawe/amazon-build/assets/images/game_screenshot.png"
+    screenshot_path = "assets/images/game_screenshot.png"
     pygame.image.save(game.screen, screenshot_path)
     print(f"Screenshot saved to: {screenshot_path}")
     

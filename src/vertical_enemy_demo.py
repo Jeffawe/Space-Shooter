@@ -74,7 +74,7 @@ def demo_vertical_enemies():
         
         # Capture key frames
         if frame in [0, 40, 80]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/vertical_enemy_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/vertical_enemy_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             enemy_count = len(game.enemies)

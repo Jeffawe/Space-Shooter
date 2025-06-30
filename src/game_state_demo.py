@@ -95,7 +95,7 @@ def demo_game_state_management():
         
         # Capture screenshots at key moments
         if frame_count % screenshot_interval == 0:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/game_state_frame_{frame_count}.png"
+            screenshot_path = f"assets/images/game_state_frame_{frame_count}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             wave_info = game.wave_manager.get_wave_info()

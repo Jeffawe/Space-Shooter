@@ -54,7 +54,7 @@ def demo_directional_facing():
         game.draw()
         
         # Save screenshot
-        screenshot_path = f"/home/jeffawe/amazon-build/assets/images/facing_demo_{direction}.png"
+        screenshot_path = f"assets/images/facing_demo_{direction}.png"
         pygame.image.save(game.screen, screenshot_path)
         
         print(f"Demo {i+1}: {description}")

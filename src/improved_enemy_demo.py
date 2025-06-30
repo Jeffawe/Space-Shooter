@@ -49,7 +49,7 @@ def demo_improved_enemies():
         
         # Capture key frames showing improved movement
         if frame in [0, 80, 160]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/improved_enemy_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/improved_enemy_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             enemy_count = len(game.enemies)

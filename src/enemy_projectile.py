@@ -15,7 +15,7 @@ class EnemyProjectile(pygame.sprite.Sprite):
         
         # Load projectile sprite (use Projectile03 for all enemy projectiles)
         if projectile_type == "laser":
-            self.image = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Projectile03.png").convert_alpha()
+            self.image = pygame.image.load("assets/images/Projectile03.png").convert_alpha()
             # Rotate to face the target direction
             angle = math.atan2(target_y - y, target_x - x)
             self.image = pygame.transform.rotate(self.image, math.degrees(angle) - 90)
@@ -74,7 +74,7 @@ class Bomb(pygame.sprite.Sprite):
         
     def load_bomb_sprite(self):
         """Load individual bomb sprite from sheet"""
-        bomb_sheet = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Bombe-Sheet.png").convert_alpha()
+        bomb_sheet = pygame.image.load("assets/images/Bombe-Sheet.png").convert_alpha()
         
         # The sheet contains 5 bomb sprites in a single row
         sheet_width = bomb_sheet.get_width()

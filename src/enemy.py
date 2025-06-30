@@ -79,11 +79,11 @@ class Enemy(pygame.sprite.Sprite):
     def load_enemy_sprite(self):
         """Load the appropriate sprite for this enemy type"""
         enemy_sprites = {
-            "fighter1": "/home/jeffawe/amazon-build/assets/images/fighter1.png",
-            "fighter2": "/home/jeffawe/amazon-build/assets/images/fighter2.png", 
-            "crabship": "/home/jeffawe/amazon-build/assets/images/CrabShip.png",
-            "gunship": "/home/jeffawe/amazon-build/assets/images/Gunship.png",
-            "pirate": "/home/jeffawe/amazon-build/assets/images/Pirate_Fighter.png"
+            "fighter1": "assets/images/fighter1.png",
+            "fighter2": "assets/images/fighter2.png", 
+            "crabship": "assets/images/CrabShip.png",
+            "gunship": "assets/images/Gunship.png",
+            "pirate": "assets/images/Pirate_Fighter.png"
         }
         
         sprite_path = enemy_sprites.get(self.enemy_type, enemy_sprites["fighter1"])
@@ -411,7 +411,7 @@ class Asteroid(pygame.sprite.Sprite):
         
     def load_asteroid_sprite(self):
         """Load individual asteroid sprite from sheet"""
-        asteroid_sheet = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Asteroids-Sheet.png").convert_alpha()
+        asteroid_sheet = pygame.image.load("assets/images/Asteroids-Sheet.png").convert_alpha()
         
         # The sheet contains 12 asteroids in a single row
         sheet_width = asteroid_sheet.get_width()
@@ -496,7 +496,7 @@ class Debris(pygame.sprite.Sprite):
         
     def load_debris_sprite(self):
         """Load individual debris sprite from sheet"""
-        debris_sheet = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Debris-Sheet.png").convert_alpha()
+        debris_sheet = pygame.image.load("assets/images/Debris-Sheet.png").convert_alpha()
         
         # The sheet contains 6 debris pieces in a single row
         sheet_width = debris_sheet.get_width()

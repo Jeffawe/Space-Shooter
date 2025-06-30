@@ -74,7 +74,7 @@ def demo_persistent_facing():
         
         # Capture key frames
         if frame in [0, 300, 600, 900, 1200]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/movement_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/movement_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             print(f"Screenshot {frame}: Facing '{current_facing}', Sprite '{current_sprite}' - {screenshot_path}")
     

@@ -97,7 +97,7 @@ def test_persistent_facing():
             
             # Take screenshot
             game.draw()
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/facing_test_frame_{frame}.png"
+            screenshot_path = f"assets/images/facing_test_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             print(f"  Screenshot: {screenshot_path}\n")
     

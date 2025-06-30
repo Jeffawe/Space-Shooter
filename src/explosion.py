@@ -31,7 +31,7 @@ class Explosion(pygame.sprite.Sprite):
     def load_explosion_frames(self):
         """Load and cut explosion animation frames from Explosion02-Sheet"""
         try:
-            explosion_sheet = pygame.image.load("/home/jeffawe/amazon-build/assets/images/Explosion02-Sheet.png").convert_alpha()
+            explosion_sheet = pygame.image.load("assets/images/Explosion02-Sheet.png").convert_alpha()
             
             # The sheet contains 10 explosion frames in a single row
             sheet_width = explosion_sheet.get_width()

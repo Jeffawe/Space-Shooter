@@ -9,7 +9,7 @@ class SpaceBackground:
     def __init__(self):
         """Initialize the space background"""
         # Load the background image
-        bg_path = "/home/jeffawe/amazon-build/assets/images/Space_01-Sheet.png"
+        bg_path = "assets/images/Space_01-Sheet.png"
         self.original_bg = pygame.image.load(bg_path).convert()
         
         # Get original dimensions

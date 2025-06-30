@@ -36,7 +36,7 @@ def live_demo():
         
         # Save a few key frames
         if frame in [0, 75, 150, 225, 299]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/live_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/live_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             progress = game.background.get_scroll_progress()
             print(f"Frame {frame}: Scroll at {progress:.1%}")

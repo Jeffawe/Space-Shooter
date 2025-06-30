@@ -80,7 +80,7 @@ class PlayerMissile:
         
         # Load the actual missile sprite
         try:
-            missile_image = pygame.image.load("/home/jeffawe/amazon-build/SpaceShooter/Enemies/Missile.png")
+            missile_image = pygame.image.load("SpaceShooter/Enemies/Missile.png")
             self.image = missile_image.convert_alpha()
             # Scale if needed (keep original size for now)
             self.width = self.image.get_width()

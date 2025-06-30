@@ -37,7 +37,7 @@ def demo_zone_scrolling():
         game.draw()
         
         # Save screenshot
-        screenshot_path = f"/home/jeffawe/amazon-build/assets/images/zone_demo_{i}.png"
+        screenshot_path = f"assets/images/zone_demo_{i}.png"
         pygame.image.save(game.screen, screenshot_path)
         
         scroll_progress = game.background.get_scroll_progress()

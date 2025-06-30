@@ -39,7 +39,7 @@ def demo_shooting():
         
         # Save a few key frames
         if frame in [0, 20, 40]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/shooting_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/shooting_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             proj_count = len(game.projectiles)
             print(f"Frame {frame}: {proj_count} projectiles active - {screenshot_path}")

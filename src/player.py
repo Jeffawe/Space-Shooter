@@ -52,7 +52,7 @@ class Player(pygame.sprite.Sprite):
     def load_sprites(self):
         """Load and cut the player sprite sheet"""
         # Load the sprite sheet
-        sprite_sheet_path = "/home/jeffawe/amazon-build/assets/images/Player01-Sheet.png"
+        sprite_sheet_path = "assets/images/Player01-Sheet.png"
         sprite_sheet = pygame.image.load(sprite_sheet_path).convert_alpha()
         
         # Get dimensions - the sheet appears to have 5 frames horizontally

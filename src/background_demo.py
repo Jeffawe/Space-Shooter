@@ -29,7 +29,7 @@ def demo_background():
         game.draw()
         
         # Save screenshot
-        screenshot_path = f"/home/jeffawe/amazon-build/assets/images/background_demo_{i}.png"
+        screenshot_path = f"assets/images/background_demo_{i}.png"
         pygame.image.save(game.screen, screenshot_path)
         print(f"Screenshot {i+1}/5: Scroll {pos:.0%} - {screenshot_path}")
     

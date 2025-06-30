@@ -105,7 +105,7 @@ def demo_bomb_system():
         
         # Capture key frames showing bomb system
         if frame in [0, 150, 300, 450]:
-            screenshot_path = f"/home/jeffawe/amazon-build/assets/images/bomb_demo_frame_{frame}.png"
+            screenshot_path = f"assets/images/bomb_demo_frame_{frame}.png"
             pygame.image.save(game.screen, screenshot_path)
             
             player_health = game.player.health_system.current_health

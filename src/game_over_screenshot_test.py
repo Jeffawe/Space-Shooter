@@ -40,7 +40,7 @@ def capture_game_over_screenshot():
         game.update()
         game.draw()
         
-        screenshot_path = f"/home/jeffawe/amazon-build/assets/images/game_over_dialogue_{i}.png"
+        screenshot_path = f"assets/images/game_over_dialogue_{i}.png"
         pygame.image.save(game.screen, screenshot_path)
         print(f"📸 Screenshot {i+1} saved: {screenshot_path}")
         
@@ -49,7 +49,7 @@ def capture_game_over_screenshot():
             game.dialogue_system.advance_dialogue()
     
     print(f"\n✅ Game Over Screen Screenshots Captured!")
-    print(f"📁 Location: /home/jeffawe/amazon-build/assets/images/")
+    print(f"📁 Location: assets/images/")
     print(f"🖼️ Files: game_over_dialogue_0.png through game_over_dialogue_4.png")
     
     print(f"\n🎬 Screenshot Features:")

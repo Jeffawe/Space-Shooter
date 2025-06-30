@@ -14,7 +14,7 @@ def test_sprite_cutting():
     pygame.display.set_mode((100, 100))
     
     # Load the sprite sheet
-    sprite_sheet_path = "/home/jeffawe/amazon-build/assets/images/Player01-Sheet.png"
+    sprite_sheet_path = "assets/images/Player01-Sheet.png"
     
     try:
         sprite_sheet = pygame.image.load(sprite_sheet_path).convert_alpha()
@@ -41,7 +41,7 @@ def test_sprite_cutting():
         sprites[name] = sprite
         
         # Save individual sprite for verification
-        output_path = f"/home/jeffawe/amazon-build/assets/images/player_{name}.png"
+        output_path = f"assets/images/player_{name}.png"
         pygame.image.save(sprite, output_path)
         print(f"Saved {name} sprite to {output_path}")
     
