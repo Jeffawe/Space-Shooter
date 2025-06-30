@@ -32,7 +32,7 @@ class PowerUp(pygame.sprite.Sprite):
         self.blink_timer = 0
         self.visible = True
         
-        print(f"Spawned {powerup_type} power-up from {spawn_side} at ({x}, {y})")
+        # print(f"Spawned {powerup_type} power-up from {spawn_side} at ({x}, {y})")
         
     def setup_floating_movement(self):
         """Setup natural floating movement based on spawn side"""
@@ -82,10 +82,10 @@ class PowerUp(pygame.sprite.Sprite):
                 color = GREEN if self.powerup_type == "health" else BLUE
                 pygame.draw.rect(self.image, color, (0, 0, 24, 24))
                 
-            print(f"Loaded {self.powerup_type} power-up sprite: {self.image.get_size()}")
+            # print(f"Loaded {self.powerup_type} power-up sprite: {self.image.get_size()}")
             
         except pygame.error as e:
-            print(f"Error loading {self.powerup_type} power-up sprite: {e}")
+            # print(f"Error loading {self.powerup_type} power-up sprite: {e}")
             # Create fallback sprite
             self.image = pygame.Surface((24, 24), pygame.SRCALPHA)
             color = GREEN if self.powerup_type == "health" else BLUE
@@ -121,10 +121,6 @@ class PowerUp(pygame.sprite.Sprite):
                      self.rect.bottom < -50 or self.rect.top > SCREEN_HEIGHT + 50)
         
         if self.lifetime <= 0 or off_screen:
-            if off_screen:
-                print(f"{self.powerup_type} power-up drifted off-screen")
-            else:
-                print(f"{self.powerup_type} power-up expired")
             self.kill()
     
     def draw(self, screen):
@@ -147,7 +143,7 @@ class EnergyEffect:
             'screen_clear': 5    # 5% chance - clear entire screen (very rare!)
         }
         
-        print(f"⚡ Energy effect activated! Duration: {duration/60:.1f} seconds")
+        # print(f"⚡ Energy effect activated! Duration: {duration/60:.1f} seconds")
         
     def update(self):
         """Update energy effect timer"""
@@ -182,7 +178,7 @@ class EnergyEffect:
         
         hit_x, hit_y = hit_enemy.rect.centerx, hit_enemy.rect.centery
         
-        print(f"⚡ Energy effect triggered: {effect_type.upper()} at ({hit_x}, {hit_y})")
+        # print(f"⚡ Energy effect triggered: {effect_type.upper()} at ({hit_x}, {hit_y})")
         
         if effect_type == 'horizontal':
             # Destroy all enemies in horizontal line (±50 pixels vertically)
@@ -210,7 +206,7 @@ class EnergyEffect:
         elif effect_type == 'screen_clear':
             # Destroy ALL enemies on screen (very rare!)
             destroyed_enemies = list(all_enemies)
-            print("💥 SCREEN CLEAR! All enemies destroyed!")
+            # print("💥 SCREEN CLEAR! All enemies destroyed!")
         
         # Create explosions for all destroyed enemies
         for enemy in destroyed_enemies:
@@ -219,7 +215,7 @@ class EnergyEffect:
             explosions_list.append(explosion)
             enemy.kill()
         
-        print(f"⚡ Energy effect destroyed {len(destroyed_enemies)} enemies with {effect_type}")
+        # print(f"⚡ Energy effect destroyed {len(destroyed_enemies)} enemies with {effect_type}")
         return destroyed_enemies
     
     def get_time_remaining(self):
@@ -243,7 +239,7 @@ class PowerUpSpawner:
         self.spawn_sides = ['left', 'right', 'top', 'bottom']
         self.spawn_side_weights = [30, 30, 20, 20]  # Left/right more common
         
-        print("🎁 Power-up spawner initialized - containers will float from screen edges")
+        # print("🎁 Power-up spawner initialized - containers will float from screen edges")
     
     def update(self, powerups_group, all_sprites_group):
         """Update spawner and potentially create new power-ups"""
@@ -287,5 +283,5 @@ class PowerUpSpawner:
         powerups_group.add(powerup)
         all_sprites_group.add(powerup)
         
-        print(f"🎁 Spawned {powerup_type} power-up from {spawn_side} edge at ({x}, {y})")
+        # print(f"🎁 Spawned {powerup_type} power-up from {spawn_side} edge at ({x}, {y})")
         return powerup

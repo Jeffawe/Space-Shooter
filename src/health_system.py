@@ -93,8 +93,6 @@ class PlayerHealth:
     def take_damage(self, damage, damage_source="unknown"):
         """Take damage if not invulnerable or immune"""
         if not self.is_alive or self.invulnerable_time > 0 or self.immune_to_damage:
-            if self.immune_to_damage:
-                print(f"🛡️ Player immune to {damage} damage from {damage_source} during wave transition")
             return False  # No damage taken
         
         self.current_health -= damage
@@ -103,7 +101,7 @@ class PlayerHealth:
         # Set invulnerability period
         self.invulnerable_time = self.max_invulnerable_time
         
-        print(f"Player took {damage} damage from {damage_source}! Health: {self.current_health}/{self.max_health}")
+        # print(f"Player took {damage} damage from {damage_source}! Health: {self.current_health}/{self.max_health}")
         
         # Check if player died
         if self.current_health <= 0:
@@ -126,8 +124,6 @@ class PlayerHealth:
         
         self.health_bar.current_health = self.current_health
         
-        if amount > 0:
-            print(f"Player healed {amount} HP! Health: {old_health} -> {self.current_health}")
     
     def update(self):
         """Update health system"""
@@ -138,10 +134,6 @@ class PlayerHealth:
     def set_immunity(self, immune):
         """Set damage immunity state (for wave transitions)"""
         self.immune_to_damage = immune
-        if immune:
-            print("🛡️ Player damage immunity activated")
-        else:
-            print("⚔️ Player damage immunity deactivated")
     
     def is_immune(self):
         """Check if player is immune to damage"""
@@ -196,7 +188,7 @@ class EnemyHealth:
         if self.health_bar:
             self.health_bar.current_health = self.current_health
         
-        print(f"{self.enemy.enemy_type} took {damage} damage! Health: {self.current_health}/{self.max_health}")
+        # print(f"{self.enemy.enemy_type} took {damage} damage! Health: {self.current_health}/{self.max_health}")
         
         if self.current_health <= 0:
             self.current_health = 0

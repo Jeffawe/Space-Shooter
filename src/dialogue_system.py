@@ -90,7 +90,7 @@ class DialogueSystem:
             ]
         }
         
-        print("💬 Dialogue System initialized - Story mode ready!")
+        # print("💬 Dialogue System initialized - Story mode ready!")
     
     def start_dialogue(self, dialogue_key):
         """Start a specific dialogue sequence"""
@@ -101,11 +101,11 @@ class DialogueSystem:
             self.dialogue_complete = False
             self.auto_advance_timer = 0
             
-            print(f"💬 Starting dialogue: {dialogue_key}")
-            print(f"   Lines: {len(self.current_dialogue)}")
+            # print(f"💬 Starting dialogue: {dialogue_key}")
+            # print(f"   Lines: {len(self.current_dialogue)}")
             return True
         else:
-            print(f"⚠️ Dialogue not found: {dialogue_key}")
+            # print(f"⚠️ Dialogue not found: {dialogue_key}")
             return False
     
     def advance_dialogue(self):
@@ -119,11 +119,11 @@ class DialogueSystem:
         if self.current_line_index >= len(self.current_dialogue):
             # Dialogue complete
             self.dialogue_complete = True
-            print("💬 Dialogue sequence completed")
+            # print("💬 Dialogue sequence completed")
             return False
         else:
             current_line = self.current_dialogue[self.current_line_index]
-            print(f"💬 {current_line['speaker']}: {current_line['text']}")
+            # print(f"💬 {current_line['speaker']}: {current_line['text']}")
             return True
     
     def skip_dialogue(self):

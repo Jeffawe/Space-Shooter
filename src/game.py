@@ -89,9 +89,7 @@ class Game:
         if self.story_mode:
             # Start with opening dialogue instead of wave intro
             self.start_opening_dialogue()
-            print("🎮 Story Mode initialized - Opening dialogue starting!")
-        else:
-            print("🎮 Endless Mode initialized")
+            # print("🎮 Story Mode initialized - Opening dialogue starting!")
     
     def check_post_wave_dialogue(self, wave_number):
         """Check if dialogue should be shown after completing a wave"""
@@ -107,7 +105,7 @@ class Game:
         if not self.game_started:
             self.dialogue_system.start_dialogue('game_start')
             self.game_started = True
-            print("💬 Starting opening dialogue sequence")
+            # print("💬 Starting opening dialogue sequence")
         
     def handle_events(self):
         """Handle game events"""
@@ -186,7 +184,7 @@ class Game:
                 not wave_info.get('wave_complete', False) and
                 not wave_info.get('wave_failed', False)):
                 # Opening dialogue finished, start wave 1 intro
-                print("💬 Opening dialogue complete - Starting Wave 1 intro!")
+                # print("💬 Opening dialogue complete - Starting Wave 1 intro!")
                 self.wave_manager.start_wave_intro(1)
         
         # Update game objects only if player is alive or in endless mode
@@ -242,7 +240,7 @@ class Game:
             # Player is dead in story mode - only update explosions and UI
             # Remove any remaining enemy projectiles and bombs when player dies
             if self.player_death_timer == 180:  # First frame of death
-                print("🛑 Player died - stopping all enemy activity")
+                # print("🛑 Player died - stopping all enemy activity")
                 for projectile in self.enemy_projectiles:
                     projectile.kill()
                 for bomb in self.bombs:
@@ -336,11 +334,7 @@ class Game:
                             # Trigger failure dialogue in story mode
                             if self.story_mode:
                                 self.dialogue_system.start_dialogue('wave_failed')
-                                print("💬 Player died - showing failure dialogue")
-                elif key == 'powerup_messages':
-                    # Handle power-up collection messages (could display them)
-                    for message in value:
-                        print(f"🎁 {message}")
+                                # print("💬 Player died - showing failure dialogue")
                 elif key in self.collision_stats:
                     # Update collision statistics
                     self.collision_stats[key] += value

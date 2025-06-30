@@ -276,7 +276,7 @@ class Enemy(pygame.sprite.Sprite):
         target_y = player_rect.centery
         
         projectile = EnemyProjectile(shoot_x, shoot_y, target_x, target_y, "laser")
-        print(f"{self.enemy_type} fired at player!")
+        # print(f"{self.enemy_type} fired at player!")
         return projectile
     
     def create_bomb(self):
@@ -284,7 +284,7 @@ class Enemy(pygame.sprite.Sprite):
         from enemy_projectile import Bomb
         
         bomb = Bomb(self.rect.centerx, self.rect.centery)
-        print(f"{self.enemy_type} dropped a bomb!")
+        # print(f"{self.enemy_type} dropped a bomb!")
         return bomb
     
     def execute_movement_pattern(self):
@@ -435,7 +435,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.original_image = asteroid_sheet.subsurface(asteroid_rect).copy()
         self.image = self.original_image
         
-        print(f"Loaded {self.size} asteroid (index {asteroid_index})")
+        # print(f"Loaded {self.size} asteroid (index {asteroid_index})")
         
     def update(self):
         """Update asteroid position and rotation"""
@@ -512,7 +512,7 @@ class Debris(pygame.sprite.Sprite):
         self.original_image = debris_sheet.subsurface(debris_rect).copy()
         self.image = self.original_image
         
-        print(f"Loaded debris piece (index {debris_index})")
+        # print(f"Loaded debris piece (index {debris_index})")
         
     def update(self):
         """Update debris position and rotation"""

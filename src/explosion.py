@@ -26,7 +26,7 @@ class Explosion(pygame.sprite.Sprite):
             self.rect.centerx = x
             self.rect.centery = y
         
-        print(f"Created {explosion_type} explosion at ({x}, {y}) with {len(self.animation_frames)} frames")
+        # print(f"Created {explosion_type} explosion at ({x}, {y}) with {len(self.animation_frames)} frames")
         
     def load_explosion_frames(self):
         """Load and cut explosion animation frames from Explosion02-Sheet"""
@@ -38,7 +38,7 @@ class Explosion(pygame.sprite.Sprite):
             sheet_height = explosion_sheet.get_height()
             frame_width = sheet_width // 10  # 10 frames in the sheet
             
-            print(f"Explosion sheet: {sheet_width}x{sheet_height}, frame size: {frame_width}x{sheet_height}")
+            # print(f"Explosion sheet: {sheet_width}x{sheet_height}, frame size: {frame_width}x{sheet_height}")
             
             # Extract each frame from the sheet
             for i in range(10):
@@ -58,7 +58,7 @@ class Explosion(pygame.sprite.Sprite):
                 
                 self.animation_frames.append(scaled_frame)
             
-            print(f"Loaded {len(self.animation_frames)} explosion frames")
+            # print(f"Loaded {len(self.animation_frames)} explosion frames")
             
         except pygame.error as e:
             print(f"Error loading explosion sheet: {e}")
@@ -74,7 +74,7 @@ class Explosion(pygame.sprite.Sprite):
             pygame.draw.circle(surface, color, (size, size), size)
             self.animation_frames.append(surface)
         
-        print("Created fallback explosion animation")
+        # print("Created fallback explosion animation")
         
     def update(self):
         """Update explosion animation"""
@@ -88,7 +88,7 @@ class Explosion(pygame.sprite.Sprite):
             # Check if animation is complete
             if self.current_frame >= len(self.animation_frames):
                 self.kill()  # Remove explosion when animation is done
-                print(f"{self.explosion_type} explosion animation completed")
+                # print(f"{self.explosion_type} explosion animation completed")
                 return
             
             # Update image to current frame

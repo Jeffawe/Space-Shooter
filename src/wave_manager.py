@@ -243,7 +243,7 @@ class WaveManager:
         all_sprites_group.add(enemy)
         
         self.enemies_spawned += 1
-        print(f"🚀 Spawned {enemy_type} for wave {self.current_wave} (#{self.enemies_spawned}) from {spawn_side} at ({x}, {y})")
+        # print(f"🚀 Spawned {enemy_type} for wave {self.current_wave} (#{self.enemies_spawned}) from {spawn_side} at ({x}, {y})")
     
     def enemy_destroyed(self):
         """Call when an enemy is destroyed"""

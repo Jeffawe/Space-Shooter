@@ -198,12 +198,12 @@ class CollisionSystem:
         # Remove the bomb (it exploded)
         bomb.kill()
         
-        print(f"💣 BOMB EXPLOSION! Player took {bomb_damage} damage ({bomb_damage/max_health*100:.0f}% of max health)")
+        # print(f"💣 BOMB EXPLOSION! Player took {bomb_damage} damage ({bomb_damage/max_health*100:.0f}% of max health)")
         
         # If player died from bomb, create player explosion too
         if player_died:
             player_explosion = Explosion(player.rect.centerx, player.rect.centery, "player")
-            print("💥 Player killed by bomb explosion!")
+            # print("💥 Player killed by bomb explosion!")
             return [bomb_explosion, player_explosion]  # Return both explosions
         
         return [bomb_explosion]  # Return just bomb explosion
@@ -216,7 +216,7 @@ class CollisionSystem:
         # Remove the power-up
         powerup.kill()
         
-        print(f"🎁 Player collected {powerup.powerup_type} power-up: {message}")
+        # print(f"🎁 Player collected {powerup.powerup_type} power-up: {message}")
         return message
     
     def handle_projectile_bomb_collision(self, projectile, bomb):
@@ -230,7 +230,7 @@ class CollisionSystem:
         projectile.kill()
         bomb.kill()
         
-        print(f"💥 Projectile hit bomb! Bomb destroyed by player shot at ({bomb.rect.centerx}, {bomb.rect.centery})")
+        # print(f"💥 Projectile hit bomb! Bomb destroyed by player shot at ({bomb.rect.centerx}, {bomb.rect.centery})")
         return bomb_explosion
     
     def handle_player_enemy_collision(self, player, enemy, collision_point):
@@ -257,7 +257,7 @@ class CollisionSystem:
                 # Keep player on screen
                 player.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
             
-            print(f"Player collided with {enemy.enemy_type}! Took 20 damage")
+            # print(f"Player collided with {enemy.enemy_type}! Took 20 damage")
             
             # Return explosion if player died
             if player_died:
@@ -300,7 +300,7 @@ class CollisionSystem:
             if hasattr(asteroid, 'rotation_speed'):
                 asteroid.rotation_speed += knockback_force * 0.5
             
-            print(f"Player hit asteroid! Took 10 damage, knockback: {knockback_force:.1f}")
+            # print(f"Player hit asteroid! Took 10 damage, knockback: {knockback_force:.1f}")
             
             # Return explosion if player died
             if player_died:
@@ -341,7 +341,7 @@ class CollisionSystem:
             debris.rect.x -= dx * 0.3  # Debris moves less
             debris.rect.y -= dy * 0.3
             
-            print(f"Player hit debris! Took 5 damage, knockback: {knockback_force:.1f}")
+            # print(f"Player hit debris! Took 5 damage, knockback: {knockback_force:.1f}")
             
             # Return explosion if player died
             if player_died:
@@ -377,7 +377,7 @@ class CollisionSystem:
                 # Enemy destroyed - create explosion
                 explosion = Explosion(enemy.rect.centerx, enemy.rect.centery, "enemy")
                 enemy.kill()  # Enemy destroyed
-                print(f"Enemy {enemy.enemy_type} destroyed!")
+                # print(f"Enemy {enemy.enemy_type} destroyed!")
                 
                 # Remove projectile
                 projectile.kill()
@@ -396,7 +396,7 @@ class CollisionSystem:
                 # Asteroid destroyed - create explosion
                 explosion = Explosion(asteroid.rect.centerx, asteroid.rect.centery, "asteroid")
                 asteroid.kill()  # Asteroid destroyed
-                print(f"Asteroid destroyed!")
+                # print(f"Asteroid destroyed!")
                 
                 # Remove projectile
                 projectile.kill()
@@ -414,7 +414,7 @@ class CollisionSystem:
             explosion = Explosion(debris.rect.centerx, debris.rect.centery, "debris")
             debris.kill()
             projectile.kill()
-            print("Debris destroyed!")
+            # print("Debris destroyed!")
             return explosion  # Return explosion to be added to game
             
         elif collision_type == 'enemy_projectile_player':
@@ -425,7 +425,7 @@ class CollisionSystem:
             player_died = player.take_damage(15, "enemy projectile")
             projectile.kill()
             
-            print("Player hit by enemy projectile! Took 15 damage")
+            # print("Player hit by enemy projectile! Took 15 damage")
             
             # Return explosion if player died
             if player_died:
