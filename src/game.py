@@ -20,11 +20,11 @@ YELLOW = (255, 255, 0)
 ORANGE = (255, 165, 0)
 
 class Game:
-    def __init__(self):
+    def __init__(self, clock):
         """Initialize the game"""
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Retro Space Shooter - Amazon Build Challenge")
-        self.clock = pygame.time.Clock()
+        self.clock = clock
         self.running = True
         
         # Create space background

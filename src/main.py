@@ -12,7 +12,7 @@ pygame.init()
     
 clock = pygame.time.Clock()
 running = True
-game = Game()
+game = Game(clock)
 
 async def main():
     """Main game function"""
