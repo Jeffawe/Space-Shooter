@@ -8,14 +8,16 @@ import sys
 from game import Game
 import asyncio
 
+pygame.init()
+    
+clock = pygame.time.Clock()
+running = True
+game = Game()
+
 async def main():
     """Main game function"""
     # Initialize pygame
-    pygame.init()
-    
-    clock = pygame.time.Clock()
-    running = True
-    game = Game()
+    global running, game, clock
     
     while running:
         # Handle events, update and draw game
@@ -31,16 +33,11 @@ async def main():
         
         # Update display
         pygame.display.flip()
+        pygame.display.update()
 
-        # Essential for pygbag - must be called every frame
-        await asyncio.sleep(0)
-        
         # Control frame rate
         clock.tick(60)
-    
-    # Cleanup
-    pygame.quit()
-    sys.exit()
 
-if __name__ == "__main__":
-    asyncio.run(main())
+        await asyncio.sleep(0)
+
+asyncio.run(main())
