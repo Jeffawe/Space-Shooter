@@ -66,26 +66,6 @@ python3 main.py
 - **Movement**: Arrow Keys or WASD
 - **Quit**: ESC key
 
-## 🎯 Development Roadmap
-
-1. ✅ Player movement and animations
-2. 🔄 Player shooting system
-3. 🔄 Enemy ships and movement patterns
-4. 🔄 Collision detection and damage
-5. 🔄 Power-ups and scoring
-6. 🔄 Sound effects and music
-7. 🔄 Background and visual effects
-8. 🔄 Game states (menu, game over, etc.)
-
-## 🎨 Assets
-
-This project includes a comprehensive set of pixel art assets:
-- Player ship with tilt animations
-- Various enemy ships and bosses
-- Projectiles and explosion effects
-- UI elements and power-ups
-- Space backgrounds and environments
-
 ## 🏆 Amazon Build Challenge
 
 This project is being developed as part of the Amazon Build Challenge, showcasing:
